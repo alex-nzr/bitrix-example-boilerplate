@@ -4,7 +4,10 @@
     "autoload": {
         "psr-4": {
             "MyCompany\\Example\\": "classes/"
-        }
+        },
+        "files": [
+            "constants/constants.php"
+        ]
     },
     "authors": [
         {

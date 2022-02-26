@@ -12,8 +12,8 @@ class EventCollector{
             'compatible' => "Y"
         ],
         [
-            'module'     => 'iblock',
-            'eventType'  => 'OnBeforeIBlockElementUpdate',
+            'module'     => 'sale',
+            'eventType'  => 'OnSaleOrderEntitySaved',
             'handler'    => ["\MyCompany\Example\ExampleClass", "notCompatibleHandler"],
             'compatible' => "N"
         ],
