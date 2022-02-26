@@ -1,0 +1,16 @@
+{
+    "name": "alex_nzr/structure_example",
+    "description": "Example of structure for custom bitrix project",
+    "autoload": {
+        "psr-4": {
+            "MyCompany\\Example\\": "classes/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Alexey Nazarov",
+            "email": "jc1988x@gmail.com"
+        }
+    ],
+    "require": {}
+}

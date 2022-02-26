@@ -1,0 +1,16 @@
+<?php
+use Bitrix\Main\Routing\RoutingConfigurator;
+use MyCompany\Example\Controllers\IBlockElementController;
+
+return function (RoutingConfigurator $routes) {
+    $routes
+        ->prefix('api/iblock/element')
+        ->name('api_iblock_element_')
+        ->group(function (RoutingConfigurator $routes) {
+                $routes->name('get')    ->get( 'get/{id}', [IBlockElementController::class,'getById']);
+                $routes->name('add')    ->post('add/', [IBlockElementController::class,'add']);
+                $routes->name('update') ->post('update/', [IBlockElementController::class,'update']);
+                $routes->name('delete') ->post('delete/{id}', [IBlockElementController::class,'delete']);
+            }
+        );
+};
