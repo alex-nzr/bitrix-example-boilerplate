@@ -1,6 +1,6 @@
 <?php
 use Bitrix\Main\Routing\RoutingConfigurator;
-use Vendor\Project\Basic\Controller\IBlockElementController;
+use Example\Routing\Controller\IBlockElementController;
 
 return function (RoutingConfigurator $routes) {
     $routes

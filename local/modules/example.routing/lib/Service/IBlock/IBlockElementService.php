@@ -1,5 +1,5 @@
 <?php
-namespace Vendor\Project\Basic\Service\IBlock;
+namespace Example\Routing\Service\IBlock;
 
 use Bitrix\Main\Loader;
 use Bitrix\Main\Request;

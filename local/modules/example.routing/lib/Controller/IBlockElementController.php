@@ -1,9 +1,9 @@
 <?php
-namespace Vendor\Project\Basic\Controller;
+namespace Example\Routing\Controller;
 
 use Bitrix\Main\Engine\Controller;
 use Bitrix\Main\Error;
-use Vendor\Project\Basic\Service\IBlock\IBlockElementService;
+use Example\Routing\Service\IBlock\IBlockElementService;
 
 /**
  * Class IBlockElementController
