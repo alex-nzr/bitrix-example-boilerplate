@@ -3,7 +3,7 @@
     "description": "Example of structure for custom bitrix project",
     "autoload": {
         "psr-4": {
-            "MyCompany\\Example\\": "classes/"
+            "MyCompany\\ComposerExample\\": "classes/"
         },
         "files": [
             "constants/constants.php"

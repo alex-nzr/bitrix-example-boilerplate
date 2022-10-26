@@ -1,8 +1,7 @@
 <?php
-namespace MyCompany\Example;
+namespace MyCompany\ComposerExample;
 
 use Bitrix\Main\Event;
-use Exception;
 
 class ExampleClass{
     public static function compatibleHandler(&$arFields)

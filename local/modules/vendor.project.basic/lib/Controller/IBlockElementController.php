@@ -1,10 +1,14 @@
 <?php
-namespace MyCompany\Example\Controllers;
+namespace Vendor\Project\Basic\Controller;
 
 use Bitrix\Main\Engine\Controller;
 use Bitrix\Main\Error;
-use MyCompany\Example\Services\IBlockElementService;
+use Vendor\Project\Basic\Service\IBlock\IBlockElementService;
 
+/**
+ * Class IBlockElementController
+ * @package Vendor\Project\Basic\Controller
+ */
 class IBlockElementController extends Controller
 {
     public function getByIdAction($id): ?array
@@ -51,13 +55,22 @@ class IBlockElementController extends Controller
         return $res;
     }
 
+    public function testAction($sid, $id): ?array
+    {
+        return [
+            'section_id' => $sid,
+            'element_id' => $id,
+        ];
+    }
+
     public function configureActions(): array
     {
         return [
             'getById'   => [ 'prefilters' => [], 'postfilters' => [] ],
             'add'       => [ 'prefilters' => [], 'postfilters' => [] ],
             'update'    => [ 'prefilters' => [], 'postfilters' => [] ],
-            'delete'    => [ 'prefilters' => [], 'postfilters' => [] ]
+            'delete'    => [ 'prefilters' => [], 'postfilters' => [] ],
+            'test'    => [ 'prefilters' => [], 'postfilters' => [] ]
         ];
     }
 }

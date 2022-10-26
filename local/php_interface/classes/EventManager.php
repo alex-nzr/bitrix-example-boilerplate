@@ -1,20 +1,20 @@
 <?php
-namespace MyCompany\Example;
+namespace MyCompany\ComposerExample;
 
-use \Bitrix\Main\EventManager;
+use Bitrix\Main\EventManager as BitrixEventManager;
 
-class EventCollector{
+class EventManager{
     protected static array $events = [
         [
             'module'     => 'iblock',
             'eventType'  => 'OnBeforeIBlockElementAdd',
-            'handler'    => ["\MyCompany\Example\ExampleClass", "compatibleHandler"],
+            'handler'    => [ExampleClass::class, "compatibleHandler"],
             'compatible' => "Y"
         ],
         [
             'module'     => 'sale',
             'eventType'  => 'OnSaleOrderEntitySaved',
-            'handler'    => ["\MyCompany\Example\ExampleClass", "notCompatibleHandler"],
+            'handler'    => [ExampleClass::class, "notCompatibleHandler"],
             'compatible' => "N"
         ],
     ];
@@ -23,14 +23,14 @@ class EventCollector{
         foreach (self::$events as $event)
         {
             if ($event['compatible'] === "Y"){
-                EventManager::getInstance()->addEventHandlerCompatible(
+                BitrixEventManager::getInstance()->addEventHandlerCompatible(
                     $event['module'],
                     $event['eventType'],
                     $event['handler']
                 );
             }
             else{
-                EventManager::getInstance()->addEventHandler(
+                BitrixEventManager::getInstance()->addEventHandler(
                     $event['module'],
                     $event['eventType'],
                     $event['handler']

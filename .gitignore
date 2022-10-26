@@ -18,3 +18,4 @@ restore.php
 /.idea/
 *.log
 *.txt
+*.lock

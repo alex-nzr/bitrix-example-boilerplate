@@ -1,9 +1,10 @@
 <?php
+
 return [
     'controllers' => [
         'value' => [
-            'defaultNamespace' => '\\MyCompany\\Example\\Controllers',
+            'defaultNamespace' => '\\Vendor\\Project\\Basic\\Controller',
         ],
         'readonly' => true,
-    ]
+    ],
 ];
