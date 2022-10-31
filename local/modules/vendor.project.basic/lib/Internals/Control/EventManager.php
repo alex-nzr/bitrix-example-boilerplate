@@ -45,7 +45,8 @@ class EventManager
                             $moduleId,
                             $eventName,
                             [$handler['class'], $handler['method']],
-                            $handler['sort'] ?? 100,
+                            false,
+                            $handler['sort'] ?? 100
                         );
                     }
                 }
