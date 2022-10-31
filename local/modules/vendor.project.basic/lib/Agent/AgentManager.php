@@ -9,11 +9,13 @@ use CAgent;
  */
 class AgentManager
 {
-    protected static array $agents = [];
+    protected array $agents = [];
+    protected string $moduleId;
     protected static ?AgentManager $instance = null;
 
     private function __construct(){
-        static::$agents = $this->getAgentsData();
+        $this->agents   = $this->getAgentsData();
+        $this->moduleId = GetModuleID(__FILE__);
     }
 
     public static function getInstance(): AgentManager
@@ -27,7 +29,7 @@ class AgentManager
 
     public function addAgents(): bool
     {
-        foreach (static::$agents as $agent)
+        foreach ($this->agents as $agent)
         {
             CAgent::AddAgent(
                 $agent['handler'],
@@ -44,7 +46,7 @@ class AgentManager
 
     public function removeAgents(): bool
     {
-        CAgent::RemoveModuleAgents(GetModuleID(__FILE__));
+        CAgent::RemoveModuleAgents($this->moduleId);
         return true;
     }
 
@@ -53,7 +55,7 @@ class AgentManager
         return [
             [
                 'handler'   => "\Vendor\Project\Basic\Agent\Common::exampleAgentFunction();",
-                'module'    => GetModuleID(__FILE__),
+                'module'    => $this->moduleId,
                 'period'    => "N",
                 'interval'  => 86400,
                 'dateCheck' => date("d.m.Y", time() + 86400)." 06:01:00",
