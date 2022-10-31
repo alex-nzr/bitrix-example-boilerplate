@@ -12,7 +12,7 @@ class EventManager
 {
     public static function addBasicEventHandlers()
     {
-        static::addEventHandlersFromArray(static::getBasicEvents());
+        static::addEventHandlersFromArray(static::getBasicEvents(), true);
     }
 
     public static function addRuntimeEventHandlers()
@@ -20,15 +20,16 @@ class EventManager
         static::addEventHandlersFromArray(static::getRunTimeEvents());
     }
 
-    private static function addEventHandlersFromArray(array $events)
+    private static function addEventHandlersFromArray(array $events, $register = false)
     {
+        $method = $register ? 'registerEventHandler' : 'addEventHandler';
         foreach ($events as $moduleId => $event)
         {
             foreach ($event as $eventName => $handlers)
             {
                 foreach ($handlers as $handler)
                 {
-                    BitrixEventManager::getInstance()->registerEventHandler(
+                    BitrixEventManager::getInstance()->$method(
                         $moduleId,
                         $eventName,
                         GetModuleID(__FILE__),
