@@ -22,21 +22,32 @@ class EventManager
 
     private static function addEventHandlersFromArray(array $events, $register = false)
     {
-        $method = $register ? 'registerEventHandler' : 'addEventHandler';
         foreach ($events as $moduleId => $event)
         {
             foreach ($event as $eventName => $handlers)
             {
                 foreach ($handlers as $handler)
                 {
-                    BitrixEventManager::getInstance()->$method(
-                        $moduleId,
-                        $eventName,
-                        GetModuleID(__FILE__),
-                        $handler['class'],
-                        $handler['method'],
-                        $handler['sort'] ?? 100,
-                    );
+                    if ($register)
+                    {
+                        BitrixEventManager::getInstance()->registerEventHandler(
+                            $moduleId,
+                            $eventName,
+                            GetModuleID(__FILE__),
+                            $handler['class'],
+                            $handler['method'],
+                            $handler['sort'] ?? 100,
+                        );
+                    }
+                    else
+                    {
+                        BitrixEventManager::getInstance()->addEventHandler(
+                            $moduleId,
+                            $eventName,
+                            [$handler['class'], $handler['method']],
+                            $handler['sort'] ?? 100,
+                        );
+                    }
                 }
             }
         }
