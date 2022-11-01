@@ -1,5 +1,5 @@
 ## ReadMe
-[Структура проекта](./ReadMe-Strucure.md)
+[Структура проекта](./ReadMe-Structure.md)
 
 [Инструкция по настройке роутинга и созданию собственного REST API](./ReadMe-RoutingAndCustomRestApi.md)
 
