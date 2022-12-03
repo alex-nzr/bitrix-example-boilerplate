@@ -2,12 +2,13 @@
 /** @var \CMain $APPLICATION */
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\UI\Extension;
 use Vendor\Project\Basic\Config\OptionManager;
-
+use Vendor\Project\Basic\Internals\Control\ServiceManager;
 
 Loc::loadMessages(__FILE__);
 
-$module_id = GetModuleID(__FILE__);
+$module_id = ServiceManager::getModuleId();
 
 try
 {
@@ -19,6 +20,9 @@ try
     if(!Loader::includeModule($module_id)){
         throw new Exception(Loc::getMessage($module_id."_MODULE_NOT_LOADED"));
     }
+
+    Extension::load([$module_id.'.admin']);
+
     $optionManager = new OptionManager($module_id);
     $optionManager->processRequest();
     $optionManager->startDrawHtml();

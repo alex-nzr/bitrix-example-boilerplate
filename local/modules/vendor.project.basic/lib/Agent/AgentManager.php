@@ -1,7 +1,19 @@
 <?php
+/**
+ * ==================================================
+ * Developer: Alexey Nazarov
+ * E-mail: jc1988x@gmail.com
+ * Copyright (c) 2019 - 2022
+ * ==================================================
+ * example project - AgentManager.php
+ * 24.11.2022 12:29
+ * ==================================================
+ */
+
 namespace Vendor\Project\Basic\Agent;
 
 use CAgent;
+use Vendor\Project\Basic\Internals\Control\ServiceManager;
 
 /**
  * Class AgentManager
@@ -9,15 +21,19 @@ use CAgent;
  */
 class AgentManager
 {
-    protected array $agents = [];
-    protected string $moduleId;
     protected static ?AgentManager $instance = null;
+    protected array $agents = [];
 
+    /**
+     * AgentManager constructor.
+     */
     private function __construct(){
         $this->agents   = $this->getAgentsData();
-        $this->moduleId = GetModuleID(__FILE__);
     }
 
+    /**
+     * @return \Vendor\Project\Basic\Agent\AgentManager
+     */
     public static function getInstance(): AgentManager
     {
         if (static::$instance === null)
@@ -27,13 +43,16 @@ class AgentManager
         return static::$instance;
     }
 
+    /**
+     * @return bool
+     */
     public function addAgents(): bool
     {
         foreach ($this->agents as $agent)
         {
             CAgent::AddAgent(
                 $agent['handler'],
-                $agent['module'],
+                ServiceManager::getModuleId(),
                 $agent['period'],
                 $agent['interval'],
                 $agent['dateCheck'],
@@ -44,24 +63,29 @@ class AgentManager
         return true;
     }
 
+    /**
+     * @return bool
+     */
     public function removeAgents(): bool
     {
-        CAgent::RemoveModuleAgents($this->moduleId);
+        CAgent::RemoveModuleAgents(ServiceManager::getModuleId());
         return true;
     }
 
+    /**
+     * @return array
+     */
     protected function getAgentsData(): array
     {
         return [
-            [
-                'handler'   => "\Vendor\Project\Basic\Agent\Common::exampleAgentFunction();",
-                'module'    => $this->moduleId,
+            /*[
+                'handler'   => "\Vendor\Project\Basic\Agent\Common::someFunc();",
                 'period'    => "N",
-                'interval'  => 86400,
-                'dateCheck' => date("d.m.Y", time() + 86400)." 06:01:00",
+                'interval'  => 3600,
+                'dateCheck' => date("d.m.Y H:i:s", time() + 3660),
                 'active'    => 'Y',
-                'nextExec'  => date("d.m.Y", time() + 86400)." 06:00:00",
-            ]
+                'nextExec'  => date("d.m.Y H:i:s", time() + 3600),
+            ],*/
         ];
     }
 

@@ -1,16 +1,18 @@
 <?php
-use Bitrix\Main\Loader;
-use Vendor\Project\Basic\Controller\IBlockElementController;
+
+use Vendor\Project\Basic\Config\Configuration;
+use Vendor\Project\Basic\Internals\Control\ServiceManager;
+use Vendor\Project\Basic\Internals\Debug\Logger;
 
 try
 {
-    //при ajax-экшенах в битриксе не работает psr-4 для контроллеров, поэтому подключение вручную
-    /*$arControllers = [
-        IBlockElementController::class  => 'lib/Controller/IBlockElementController.php',
-    ];
-    Loader::registerAutoLoadClasses(GetModuleID(__FILE__), $arControllers);*/
+    ServiceManager::getInstance()->includeModule();
 }
-catch (Exception $e)
+catch (Throwable $e)
 {
-    //log error
+    Logger::writeToFile(
+        $e->getMessage(),
+        date("d.m.Y H:i:s") . ' - error on including module - ' . ServiceManager::getModuleId(),
+        Configuration::getInstance()->getLogFilePath()
+    );
 }

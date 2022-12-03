@@ -1,8 +1,19 @@
 <?php
+/**
+ * ==================================================
+ * Developer: Alexey Nazarov
+ * E-mail: jc1988x@gmail.com
+ * Copyright (c) 2019 - 2022
+ * ==================================================
+ * example project - Logger.php
+ * 24.11.2022 14:46
+ * ==================================================
+ */
+
 namespace Vendor\Project\Basic\Internals\Debug;
 
 use Bitrix\Main\Diag\Debug;
-use Vendor\Project\Basic\Config\Constants;
+use Vendor\Project\Basic\Config\Configuration;
 
 /**
  * Class Logger
@@ -15,7 +26,9 @@ class Logger extends Debug
      */
     public static function print(...$vars){
         foreach ($vars as $key => $var) {
-            echo "№$key.<pre>";print_r($var);echo "</pre>";
+            echo "$key---------------------------------------<pre>";
+            print_r($var);
+            echo "</pre>";
         }
     }
 
@@ -25,7 +38,11 @@ class Logger extends Debug
     public static function printToFile(...$vars)
     {
         foreach ($vars as $key => $var) {
-            static::writeToFile($var, "№".$key.'.', Constants::LOG_FILENAME);
+            static::writeToFile(
+                $var,
+                "$key---------------------------------------",
+                Configuration::getInstance()->getLogFilePath()
+            );
         }
     }
 

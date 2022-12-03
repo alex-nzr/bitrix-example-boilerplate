@@ -1,0 +1,11 @@
+#bx-admin-prefix .adm-info-message{
+    margin: 10px auto;
+    display: block;
+}
+
+label.module-option-label input[disabled][readonly]{
+    opacity: .5;
+}
+label.module-option-label input[readonly]{
+    opacity: 1;
+}

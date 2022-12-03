@@ -1,10 +1,20 @@
 <?php
+/**
+ * ==================================================
+ * Developer: Alexey Nazarov
+ * E-mail: jc1988x@gmail.com
+ * Copyright (c) 2019 - 2022
+ * ==================================================
+ * example project - Common.php
+ * 24.11.2022 12:30
+ * ==================================================
+ */
 namespace Vendor\Project\Basic\Agent;
 
-use Bitrix\Main\Loader;
-use Throwable;
-use Vendor\Project\Basic\Config\Constants;
+
+use Vendor\Project\Basic\Config\Configuration;
 use Vendor\Project\Basic\Internals\Debug\Logger;
+use Throwable;
 
 /**
  * Class Common
@@ -12,23 +22,35 @@ use Vendor\Project\Basic\Internals\Debug\Logger;
  */
 class Common
 {
-    protected static string $logFile = Constants::LOG_FILENAME;
-
-    public static function exampleAgentFunction(): string
+    /**
+     * @return string
+     */
+    public static function someFunc(): string
     {
         try
         {
-            Loader::includeModule('iblock');
+            //Agent logic
         }
         catch (Throwable $e)
         {
-            Logger::writeToFile(
-                date("d.m.Y H:i:s") . " | " . $e->getMessage(),
-                'Error in agent ' . __METHOD__,
-                static::$logFile
-            );
+            $method = __METHOD__;
+            static::logError($e, $method);
         }
 
-        return __METHOD__."();";
+        return __METHOD__.'();';
+    }
+
+    /**
+     * @param \Throwable $e
+     * @param string $method
+     */
+    private static function logError(Throwable $e, string $method)
+    {
+        $code = !empty($e->getCode()) ? $e->getCode() : 0;
+        Logger::writeToFile(
+            "Code: $code. Description: " . $e->getMessage(),
+            date("d.m.Y H:i:s") . ' ' . $method,
+            Configuration::getInstance()->getLogFilePath()
+        );
     }
 }

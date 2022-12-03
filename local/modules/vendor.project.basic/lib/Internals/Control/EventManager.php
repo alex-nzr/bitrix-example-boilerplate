@@ -1,8 +1,18 @@
 <?php
+/**
+ * ==================================================
+ * Developer: Alexey Nazarov
+ * E-mail: jc1988x@gmail.com
+ * Copyright (c) 2019 - 2022
+ * ==================================================
+ * example project - EventManager.php
+ * 24.11.2022 12:46
+ * ==================================================
+ */
 namespace Vendor\Project\Basic\Internals\Control;
 
 use Bitrix\Main\EventManager as BitrixEventManager;
-use Vendor\Project\Basic\Service\Handler\Main\Page;
+use Vendor\Project\Basic\Handler;
 
 /**
  * Class EventManager
@@ -20,7 +30,7 @@ class EventManager
         static::addEventHandlersFromArray(static::getRunTimeEvents());
     }
 
-    private static function addEventHandlersFromArray(array $events, $register = false)
+    private static function addEventHandlersFromArray(array $events, bool $register = false)
     {
         foreach ($events as $moduleId => $event)
         {
@@ -33,7 +43,7 @@ class EventManager
                         BitrixEventManager::getInstance()->registerEventHandler(
                             $moduleId,
                             $eventName,
-                            GetModuleID(__FILE__),
+                            ServiceManager::getModuleId(),
                             $handler['class'],
                             $handler['method'],
                             $handler['sort'] ?? 100,
@@ -65,7 +75,7 @@ class EventManager
                     BitrixEventManager::getInstance()->unRegisterEventHandler(
                         $moduleId,
                         $eventName,
-                        GetModuleID(__FILE__),
+                        ServiceManager::getModuleId(),
                         $handler['class'],
                         $handler['method'],
                     );
@@ -88,7 +98,7 @@ class EventManager
                         'sort'   => 100
                     ],
                 ]
-            ],
+            ]
         ];
     }
 
@@ -101,12 +111,12 @@ class EventManager
             'main' => [
                 'onPageStart' => [
                     [
-                        'class'  => Page::class,
-                        'method' => 'doSomething',
-                        'sort'   => 100
+                        'class'  => Handler\Main::class,
+                        'method' => 'onPageStartHandler',
+                        'sort'   => 400
                     ],
-                ]
-            ]
+                ],
+            ],
         ];
     }
 }

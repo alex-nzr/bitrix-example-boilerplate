@@ -1,13 +1,27 @@
 <?php
+/**
+ * ==================================================
+ * Developer: Alexey Nazarov
+ * E-mail: jc1988x@gmail.com
+ * Copyright (c) 2019 - 2022
+ * ==================================================
+ * example project - install.php
+ * 24.11.2022 11:46
+ * ==================================================
+ */
+
 use Bitrix\Main\Application;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Context;
+use Bitrix\Main\Diag\Debug;
 use Bitrix\Main\IO\Directory as Dir;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
 use Vendor\Project\Basic\Agent\AgentManager;
-use Vendor\Project\Basic\Internals\Control\EventManager as CustomEventManager;
+use Vendor\Project\Basic\Internals\Control\EventManager as CbitEventManager;
+use Vendor\Project\Basic\Internals\Installation\Installer;
+
 
 Loc::loadMessages(__FILE__);
 
@@ -27,7 +41,7 @@ class vendor_project_basic extends CModule
         $arModuleVersion = [];
         include(__DIR__."/version.php");
 
-        $this->MODULE_ID = GetModuleID(__FILE__);
+        $this->MODULE_ID     = GetModuleID(__FILE__);
 
         $this->partnerId     = explode('.', $this->MODULE_ID)[0];
         $this->projectId     = explode('.', $this->MODULE_ID)[1];
@@ -39,11 +53,14 @@ class vendor_project_basic extends CModule
         $this->MODULE_DESCRIPTION   = Loc::getMessage($this->MODULE_ID . "_MODULE_DESCRIPTION");
         $this->PARTNER_NAME         = Loc::getMessage($this->MODULE_ID . "_PARTNER_NAME");
         $this->PARTNER_URI          = Loc::getMessage($this->MODULE_ID . "_PARTNER_URI");
-        $this->MODULE_SORT          = 10;
+        $this->MODULE_SORT          = 20;
         $this->MODULE_GROUP_RIGHTS  = "Y";
         $this->SHOW_SUPER_ADMIN_GROUP_RIGHTS = "Y";
     }
 
+    /**
+     * @return bool
+     */
     public function DoInstall(): bool
     {
         try
@@ -65,12 +82,20 @@ class vendor_project_basic extends CModule
         }
         catch (Throwable $e)
         {
+            Debug::writeToFile(
+                $e->getMessage(),
+                Loc::getMessage($this->MODULE_ID . "_INSTALL_ERROR"),
+                '/local/modules/'.$this->MODULE_ID.'/log.txt'
+            );
             $this->App->ThrowException(Loc::getMessage($this->MODULE_ID . "_INSTALL_ERROR")." - ". $e->getMessage());
             $this->DoUninstall();
             return false;
         }
     }
 
+    /**
+     * @return bool
+     */
     public function DoUninstall(): bool
     {
         try
@@ -116,7 +141,11 @@ class vendor_project_basic extends CModule
      */
     public function InstallDB()
     {
-
+        $result = Installer::installModule();
+        if (!$result->isSuccess())
+        {
+            throw new Exception(implode('; ', $result->getErrorMessages()));
+        }
     }
 
     /**
@@ -124,17 +153,18 @@ class vendor_project_basic extends CModule
      */
     public function UnInstallDB()
     {
+        Installer::uninstallModule();
         Option::delete($this->MODULE_ID);
     }
 
     public function InstallEvents()
     {
-        CustomEventManager::addBasicEventHandlers();
+        CbitEventManager::addBasicEventHandlers();
     }
 
     public function UnInstallEvents()
     {
-        CustomEventManager::removeBasicEventHandlers();
+        CbitEventManager::removeBasicEventHandlers();
     }
 
     public function InstallFiles()
@@ -143,7 +173,6 @@ class vendor_project_basic extends CModule
         CopyDirFiles(__DIR__.'/css/', $this->docRoot.'/local/css/'.$this->partnerId."/".$this->projectId."/".$this->moduleIdShort, true, true);
         CopyDirFiles(__DIR__.'/admin/', $this->docRoot.'/bitrix/admin', true);
         CopyDirFiles(__DIR__.'/components/', $this->docRoot.'/local/components', true, true);
-        CopyDirFiles(__DIR__.'/public/', $this->docRoot, true, true);
     }
 
     public function UnInstallFiles()
@@ -161,6 +190,22 @@ class vendor_project_basic extends CModule
                 while ($item = readdir($dir))
                 {
                     if (strpos($item, $this->projectId.".".$this->moduleIdShort) !== false)
+                    {
+                        if (is_dir($path . $item))
+                        {
+                            Dir::deleteDirectory($path . $item);
+                        }
+                    }
+                }
+                closedir($dir);
+            }
+        }
+
+        if (Dir::isDirectoryExists($path = $this->docRoot.'/local/components/bitrix/')) {
+            if ($dir = opendir($path)) {
+                while ($item = readdir($dir))
+                {
+                    if (!in_array($item,['.','..']) && is_dir(__DIR__.'/components/bitrix/'.$item))
                     {
                         if (is_dir($path . $item))
                         {
@@ -216,7 +261,7 @@ class vendor_project_basic extends CModule
         }
 
         $requireModules = [
-            'main'  => '22.0.0',
+            'main' => '22.0.0',
         ];
 
         foreach ($requireModules as $moduleName => $moduleVersion)

@@ -1,8 +1,8 @@
 <?php
 $moduleId = GetModuleID(__FILE__);
 
-$MESS[$moduleId."_MODULE_NAME"]           = "Vendor. Example module";
-$MESS[$moduleId."_MODULE_DESCRIPTION"]    = "Example boilerplate module.";
+$MESS[$moduleId."_MODULE_NAME"]           = "Example basic";
+$MESS[$moduleId."_MODULE_DESCRIPTION"]    = "Простой шаблон модуля";
 $MESS[$moduleId."_PARTNER_NAME"]          = "Vendor";
 $MESS[$moduleId."_PARTNER_URI"]           = "https://vendor-site.ru";
 $MESS[$moduleId."_SESSION_ERROR"]         = "Неверный идентификатор сессии.";
@@ -15,6 +15,11 @@ $MESS[$moduleId."_UNINSTALL_ERROR"]       = "Ошибка удаления мо�
 $MESS[$moduleId."_INSTALL_OK"]            = "Модуль успешно установлен";
 $MESS[$moduleId."_UNINSTALL_OK"]          = "Модуль успешно удалён";
 $MESS[$moduleId."_INSTALL_BACK"]          = "Вернуться к списку";
+$MESS[$moduleId."_IF_INSTALL_ERROR"]      = "<span style='display: block; color: red; font-weight:600;padding: 20px;border: 1px solid red;'>
+                                                Если вы видите это окно при установке модуля, значит произошла ошибка и модуль должен быть удалён.<br> 
+                                                Рекомендуется в этом случае не сохранять не сохранять таблицы.<br>
+                                                Подробности ошибки в папке модуля, в файле log.txt
+                                             </span>";
 $MESS[$moduleId."_UNINSTALL_ACCEPT"]      = "Продолжить удаление";
 $MESS[$moduleId."_UNINSTALL_WARN"]        = "Внимание!<br>Модуль будет удален из системы";
 $MESS[$moduleId."_UNINSTALL_SAVE_TABLES"] = "Сохранить таблицы";

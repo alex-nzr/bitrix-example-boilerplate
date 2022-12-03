@@ -1,0 +1,2 @@
+this.BX=this.BX||{},function(o){"use strict";var n={bindColorPickerToNode:function(o,n){var i=arguments.length>2&&void 0!==arguments[2]?arguments[2]:"",e=BX(o),t=BX(n);BX.bind(e,"click",(function(){new BX.ColorPicker({bindElement:e,defaultColor:null!=i?i:"#FFFFFF",allowCustomColor:!0,onColorSelected:function(o){t.value=o},popupOptions:{angle:!0,autoHide:!0,closeByEsc:!0,events:{onPopupClose:function(){}}}}).open()}))}};o.OptionPage=n}(this.BX.AdminSection=this.BX.AdminSection||{});
+//# sourceMappingURL=admin.bundle.js.map
