@@ -43,7 +43,7 @@ class UserField
      * @param $id
      * @return string
      */
-    public static function getUfLustValueBiId($id): string
+    public static function getUfLustValueById($id): string
     {
         $value = '';
         if (!empty($id))
