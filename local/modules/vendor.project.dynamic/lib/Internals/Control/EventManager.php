@@ -112,7 +112,7 @@ class EventManager
                 'onEntityDetailsTabsInitialized' => [
                     [
                         'class'  => Handler\Crm::class,
-                        'method' => 'changeTenderCardTabs',
+                        'method' => 'changeDetailCardTabs',
                         'sort'   => 400
                     ],
                 ],
