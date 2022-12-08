@@ -25,14 +25,14 @@ class Crm
 {
     /**
      * @param \Bitrix\Main\Event $event
-     * @return \Bitrix\Main\EventResult
+     * @return \Bitrix\Main\EventResult|null
      * @throws \Exception
      */
-    public static function changeDetailCardTabs(Event $event): EventResult
+    public static function changeDetailCardTabs(Event $event): ?EventResult
     {
-        $tabs = $event->getParameter('tabs');
         if (ServiceManager::getInstance()->isInDynamicTypeSection())
         {
+            $tabs = $event->getParameter('tabs');
             foreach ($tabs as $key => $tab)
             {
                 //Some custom logic with detail card tabs
@@ -41,9 +41,10 @@ class Crm
                     unset($tabs[$key]);
                 }
             }
+            return new EventResult(EventResult::SUCCESS, [
+                'tabs' => $tabs,
+            ]);
         }
-        return new EventResult(EventResult::SUCCESS, [
-            'tabs' => $tabs,
-        ]);
+        return null;
     }
 }
