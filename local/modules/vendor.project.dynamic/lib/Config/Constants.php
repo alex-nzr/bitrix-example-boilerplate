@@ -31,4 +31,18 @@ class Constants
     const OPTION_KEY_SOME_TEXT_OPTION  = 'vendor_project_dynamic_some_text_option';
     const OPTION_KEY_SOME_FILE_OPTION  = 'vendor_project_dynamic_some_file_option'.self::OPTION_TYPE_FILE_POSTFIX;
     const OPTION_KEY_SOME_COLOR_OPTION = 'vendor_project_dynamic_some_color_option';
+
+    const DYNAMIC_CATEGORY_DEFAULT_TITLE = 'Default category';
+    const DYNAMIC_CATEGORY_DEFAULT_CODE  = 'DEFAULT';
+    const DYNAMIC_STAGE_DEFAULT_NEW      = 'NEW';
+    const DYNAMIC_STAGE_DEFAULT_MY_STAGE = 'MY_STAGE';
+    const DYNAMIC_STAGE_DEFAULT_SUCCESS  = 'SUCCESS';
+    const DYNAMIC_STAGE_DEFAULT_FAIL     = 'FAIL';
+
+    const DYNAMIC_CATEGORY_CUSTOM_TITLE = 'Custom category';
+    const DYNAMIC_CATEGORY_CUSTOM_CODE  = 'CUSTOM';
+    const DYNAMIC_STAGE_CUSTOM_NEW      = 'NEW';
+    const DYNAMIC_STAGE_CUSTOM_MY_STAGE = 'MY_STAGE';
+    const DYNAMIC_STAGE_CUSTOM_SUCCESS  = 'SUCCESS';
+    const DYNAMIC_STAGE_CUSTOM_FAIL     = 'FAIL';
 }
