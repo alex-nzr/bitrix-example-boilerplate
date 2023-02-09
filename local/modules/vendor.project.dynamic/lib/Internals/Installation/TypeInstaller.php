@@ -55,6 +55,7 @@ class TypeInstaller
         }
         else
         {
+            /**@var \Bitrix\Crm\Model\Dynamic\Type|\Bitrix\Main\ORM\Objectify\EntityObject $type*/
             $type         = $typeDataClass::createObject();
             $name         = $typeDataClass::generateName($title);
             $entityTypeId = $typeDataClass::getNextAvailableEntityTypeId() ?? 0;

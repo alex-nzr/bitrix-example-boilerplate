@@ -19,7 +19,6 @@ use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Request;
 use Bitrix\Main\UI\Extension;
-use Vendor\Project\Dynamic\Config\Constants;
 use Vendor\Project\Dynamic\Controller;
 use Vendor\Project\Dynamic\Entity;
 use Vendor\Project\Dynamic\Filter\FilterFactory;
@@ -40,6 +39,9 @@ class ServiceManager
 
     private function __construct(){}
 
+    /**
+     * @return \Vendor\Project\Dynamic\Internals\Control\ServiceManager
+     */
     public static function getInstance(): ServiceManager
     {
         if (static::$instance === null)
@@ -109,13 +111,16 @@ class ServiceManager
      */
     private function includeCustomServices(): void
     {
-        if ($this->isInDynamicTypeSection())
+        if (Container::getInstance()->getRouter()->isInDynamicTypeSection())
         {
             $this->addCustomCrmServices();
             $this->addCustomSectionProvider();
         }
     }
 
+    /**
+     * @return void
+     */
     private function addCustomCrmServices()
     {
         ServiceLocator::getInstance()->addInstance('crm.service.container', new Container());
@@ -123,7 +128,10 @@ class ServiceManager
         ServiceLocator::getInstance()->addInstance('crm.filter.factory', new FilterFactory());
     }
 
-    private static function addCustomSectionProvider()
+    /**
+     * @return void
+     */
+    private function addCustomSectionProvider()
     {
         $crmConfig = Configuration::getInstance('crm');
         $customSectionConfig = $crmConfig->get('intranet.customSection');
@@ -169,21 +177,6 @@ class ServiceManager
     }
 
     /**
-     * @return bool
-     * @throws \Exception
-     */
-    public function isInDynamicTypeSection(): bool
-    {
-        $needlePath_1 = '/crm/type/' . Entity\Dynamic::getInstance()->getEntityTypeId() . '/';
-        $needlePath_2 = "/page/" . Constants::DYNAMIC_TYPE_CUSTOM_SECTION_CODE . "/";
-        if ( (strpos($this->getCurPage(), $needlePath_1) === 0) || (strpos($this->getCurPage(), $needlePath_2) === 0) )
-        {
-            return true;
-        }
-        return false;
-    }
-
-    /**
      * @return void
      */
     public function addListPageExtensions(): void
@@ -195,14 +188,6 @@ class ServiceManager
      */
     public function addDetailPageExtensions(): void
     {
-    }
-
-    /**
-     * @return string
-     */
-    public function getCurPage(): string
-    {
-        return (string)Context::getCurrent()->getRequest()->getRequestedPage();
     }
 
     /**

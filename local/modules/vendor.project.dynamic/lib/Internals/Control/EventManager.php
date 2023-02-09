@@ -12,7 +12,7 @@
 namespace Vendor\Project\Dynamic\Internals\Control;
 
 use Bitrix\Main\EventManager as BitrixEventManager;
-use Vendor\Project\Dynamic\Handler;
+use Vendor\Project\Dynamic\EventHandler;
 
 /**
  * Class EventManager
@@ -111,7 +111,7 @@ class EventManager
             'crm' => [
                 'onEntityDetailsTabsInitialized' => [
                     [
-                        'class'  => Handler\Crm::class,
+                        'class'  => EventHandler\Crm::class,
                         'method' => 'changeDetailCardTabs',
                         'sort'   => 400
                     ],

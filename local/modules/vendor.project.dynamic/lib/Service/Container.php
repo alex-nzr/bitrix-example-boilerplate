@@ -13,7 +13,7 @@ namespace Vendor\Project\Dynamic\Service;
 
 use Bitrix\Main\DI\ServiceLocator;
 use Vendor\Project\Dynamic\Entity;
-use Vendor\Project\Dynamic\Internals\Control\ServiceManager;
+use Vendor\Project\Dynamic\Service\Access\UserPermissions;
 
 /**
  * Class Container
@@ -23,38 +23,42 @@ class Container extends \Bitrix\Crm\Service\Container
 {
     /**
      * @return \Vendor\Project\Dynamic\Service\Container
-     * @throws \Bitrix\Main\ObjectNotFoundException
+     * @throws \Exception
      */
     public static function getInstance(): Container
     {
-        $container = ServiceLocator::getInstance()->get('crm.service.container');
-        if (!($container instanceof Container)){
-            $container = new static();
+        $identifier = static::getIdentifierByClassName(static::class);
+        if(!ServiceLocator::getInstance()->has($identifier))
+        {
+            ServiceLocator::getInstance()->addInstance($identifier, new static());
         }
-        return $container;
+        return ServiceLocator::getInstance()->get($identifier);
     }
 
     /**
      * @return \Vendor\Project\Dynamic\Service\Router
-     * @throws \Bitrix\Main\ObjectNotFoundException
+     * @throws \Exception
      */
     public function getRouter(): Router
     {
-        $router = ServiceLocator::getInstance()->get('crm.service.router');
-        if (!($router instanceof Router)){
-            $router = new Router();
+        $identifier = static::getIdentifierByClassName(Router::class);
+        if(!ServiceLocator::getInstance()->has($identifier))
+        {
+            ServiceLocator::getInstance()->addInstance($identifier, new Router);
         }
-        return $router;
+        return ServiceLocator::getInstance()->get($identifier);
     }
 
     /**
+     * @param int $entityTypeId
+     * @return \Bitrix\Crm\Service\Factory|null
      * @throws \Exception
      */
     public function getFactory(int $entityTypeId): ?\Bitrix\Crm\Service\Factory
     {
         if ($entityTypeId === Entity\Dynamic::getInstance()->getEntityTypeId())
         {
-            $identifier = ServiceManager::getModuleId() . '.dynamicFactory';//Some unique identifier for service
+            $identifier = static::getIdentifierByClassName(Factory::class);
             if(!ServiceLocator::getInstance()->has($identifier))
             {
                 $type = $this->getTypeByEntityTypeId($entityTypeId);
@@ -73,5 +77,37 @@ class Container extends \Bitrix\Crm\Service\Container
         }
 
         return parent::getFactory($entityTypeId);
+    }
+
+    /**
+     * @param int|null $userId
+     * @return \Vendor\Project\Dynamic\Service\Access\UserPermissions
+     * @throws \Exception
+     */
+    public function getUserPermissions(?int $userId = null): UserPermissions
+    {
+        if($userId === null)
+        {
+            $userId = $this->getContext()->getUserId();
+        }
+
+        $identifier = static::getIdentifierByClassName(UserPermissions::class, [$userId]);
+
+        if(!ServiceLocator::getInstance()->has($identifier))
+        {
+            $userPermissions = $this->createUserPermissions($userId);
+            ServiceLocator::getInstance()->addInstance($identifier, $userPermissions);
+        }
+
+        return ServiceLocator::getInstance()->get($identifier);
+    }
+
+    /**
+     * @param int $userId
+     * @return \Bitrix\Crm\Service\UserPermissions
+     */
+    protected function createUserPermissions(int $userId): \Bitrix\Crm\Service\UserPermissions
+    {
+        return new UserPermissions($userId);
     }
 }

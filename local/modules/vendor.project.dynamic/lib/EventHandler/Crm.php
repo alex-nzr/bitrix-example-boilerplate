@@ -10,16 +10,16 @@
  * ==================================================
  */
 
-
-namespace Vendor\Project\Dynamic\Handler;
+namespace Vendor\Project\Dynamic\EventHandler;
 
 use Bitrix\Main\Event;
 use Bitrix\Main\EventResult;
 use Vendor\Project\Dynamic\Internals\Control\ServiceManager;
+use Vendor\Project\Dynamic\Service\Container;
 
 /**
- * Class Crm
- * @package Vendor\Project\Dynamic\Handler
+ * @class Crm
+ * @package Vendor\Project\Dynamic\EventHandler
  */
 class Crm
 {
@@ -30,7 +30,7 @@ class Crm
      */
     public static function changeDetailCardTabs(Event $event): ?EventResult
     {
-        if (ServiceManager::getInstance()->isInDynamicTypeSection())
+        if (Container::getInstance()->getRouter()->isInDynamicTypeSection())
         {
             $tabs = $event->getParameter('tabs');
             foreach ($tabs as $key => $tab)

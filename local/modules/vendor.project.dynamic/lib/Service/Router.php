@@ -14,6 +14,7 @@ namespace Vendor\Project\Dynamic\Service;
 use Bitrix\Crm\Service\Router\ParseResult;
 use Bitrix\Intranet\CustomSection\Entity\CustomSectionPageTable;
 use Bitrix\Intranet\CustomSection\Entity\CustomSectionTable;
+use Bitrix\Main\Context;
 use Bitrix\Main\HttpRequest;
 use Vendor\Project\Dynamic\Config\Constants;
 use Vendor\Project\Dynamic\Entity;
@@ -25,10 +26,22 @@ use Vendor\Project\Dynamic\Internals\Control\ServiceManager;
  */
 class Router extends \Bitrix\Crm\Service\Router
 {
+    private ?bool $isDetailPage = null;
+    private ?bool $isListPage = null;
+    private int $entityTypeId;
+
+    /**
+     * @throws \Exception
+     */
+    public function __construct()
+    {
+        $this->entityTypeId = Entity\Dynamic::getInstance()->getEntityTypeId();
+        parent::__construct();
+    }
+
     /**
      * @param \Bitrix\Main\HttpRequest|null $httpRequest
      * @return \Bitrix\Crm\Service\Router\ParseResult
-     * @throws \Exception
      */
     public function parseRequest(HttpRequest $httpRequest = null): ParseResult
     {
@@ -37,7 +50,7 @@ class Router extends \Bitrix\Crm\Service\Router
         $parameters   = $result->getComponentParameters();
         $entityTypeId = $parameters['ENTITY_TYPE_ID'] ?? $parameters['entityTypeId'] ?? null;
 
-        if ((int)$entityTypeId === Entity\Dynamic::getInstance()->getEntityTypeId())
+        if ((int)$entityTypeId === $this->entityTypeId)
         {
             $newComponent = $component;
             switch ($component)
@@ -46,12 +59,18 @@ class Router extends \Bitrix\Crm\Service\Router
                     //TODO add to the list component after replacement
                     ServiceManager::getInstance()->addListPageExtensions();
                     //$newComponent = 'myNewListComponent';
+
+                    $this->isListPage = true;
+                    $this->isDetailPage = false;
                     break;
 
                 case 'bitrix:crm.item.details':
                     //TODO add to the detail component after replacement
                     ServiceManager::getInstance()->addDetailPageExtensions();
                     //$newComponent = 'myNewDetailComponent';
+
+                    $this->isListPage = false;
+                    $this->isDetailPage = true;
                     break;
             }
 
@@ -80,13 +99,73 @@ class Router extends \Bitrix\Crm\Service\Router
     }
 
     /**
+     * @return string
+     */
+    public function getItemListUrlInCrmSection(): string
+    {
+        return '/crm/type/'.$this->entityTypeId.'/list';
+    }
+
+    /**
+     * @return bool
+     * @throws \Exception
+     */
+    public function isInDynamicTypeSection(): bool
+    {
+        $page    = $this->getCurPage();
+        $needle1 = '/crm/type/' . $this->entityTypeId . '/';
+        $needle2 = "/page/" . Constants::DYNAMIC_TYPE_CUSTOM_SECTION_CODE . "/";
+
+        return ( (strpos($page, $needle1) === 0) || (strpos($page, $needle2) === 0) );
+    }
+
+    /**
+     * @return bool
+     * @throws \Exception
+     */
+    public function isDetailPage(): bool
+    {
+        if ($this->isDetailPage === null)
+        {
+            $page               = $this->getCurPage();
+            $needle             = '/type/' . $this->entityTypeId . '/details/';
+            $this->isDetailPage = (strpos($page, $needle) !== false);
+        }
+        return $this->isDetailPage;
+    }
+
+    /**
+     * @return bool
+     * @throws \Exception
+     */
+    public function isListPage(): bool
+    {
+        if ($this->isListPage === null)
+        {
+            $page    = $this->getCurPage();
+            $needle1 = $this->getItemListUrlInCustomSection();
+            $needle2 = $this->getItemListUrlInCrmSection();
+            $this->isListPage = ( (strpos($page, $needle1) === 0) || (strpos($page, $needle2) === 0) );
+        }
+        return $this->isListPage;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCurPage(): string
+    {
+        return (string)Context::getCurrent()->getRequest()->getRequestedPage();
+    }
+
+    /**
      * @param int $id
      * @return string
      * @throws \Exception
      */
     public function getItemDetailUrlById(int $id): string
     {
-        return $this->getItemDetailUrl( Entity\Dynamic::getInstance()->getEntityTypeId(), $id);
+        return $this->getItemDetailUrl( $this->entityTypeId, $id);
     }
 
     /**
@@ -97,8 +176,8 @@ class Router extends \Bitrix\Crm\Service\Router
     public function getCustomPageCode(string $settingsKey): string
     {
         $existsPages = Container::getInstance()
-                        ->getRouter()
-                        ->getCustomSectionPages(Constants::DYNAMIC_TYPE_CUSTOM_SECTION_CODE);
+            ->getRouter()
+            ->getCustomSectionPages(Constants::DYNAMIC_TYPE_CUSTOM_SECTION_CODE);
 
         $pageCode = '';
 
@@ -145,7 +224,7 @@ class Router extends \Bitrix\Crm\Service\Router
      */
     public function getEntityIdFromDetailUrl(string $requestedPage): ?int
     {
-        $parts = explode( '/type/'.Entity\Dynamic::getInstance()->getEntityTypeId().'/details/',$requestedPage);
+        $parts = explode( '/type/'.$this->entityTypeId.'/details/',$requestedPage);
         if (!empty($parts[1]))
         {
             $id = current(explode('/', $parts[1]));

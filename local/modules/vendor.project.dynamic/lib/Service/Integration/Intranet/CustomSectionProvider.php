@@ -51,7 +51,7 @@ class CustomSectionProvider extends IntranetCustomSectionProvider
      * @param string $pageSettings
      * @param \Bitrix\Main\Web\Uri $url
      * @return \Bitrix\Intranet\CustomSection\Provider\Component|null
-     * @throws \Bitrix\Main\ObjectNotFoundException
+     * @throws \Exception
      */
     public function resolveComponent(string $pageSettings, Uri $url): ?Component
     {

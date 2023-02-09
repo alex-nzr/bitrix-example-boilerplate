@@ -52,7 +52,7 @@ class UserFieldInstaller
                 {
                     if ($userField['USER_TYPE_ID'] === 'enumeration' && is_array($userField['LIST']))
                     {
-                        $currentValues = Helper\Main\UserField::getUfListValues((int)$arField['ID']);
+                        $currentValues = Helper\Main\UserField::getUfListValuesByFieldId((int)$arField['ID']);
 
                         foreach ($userField['LIST'] as $key => $valueAr)
                         {
@@ -62,10 +62,6 @@ class UserFieldInstaller
                                     $currentValues[array_search($valueAr['VALUE'], $currentValues)],
                                     $userField['LIST'][$key]
                                 );
-                            }
-                            else
-                            {
-                                unset($userField['LIST'][$key]['XML_ID']);
                             }
                         }
 
@@ -95,8 +91,8 @@ class UserFieldInstaller
 
         if (!empty($newFields))
         {
-            $addRes = static::addCustomUserFields($newFields);
-            if(!$addRes){
+            $addRes = static::addUserFields($newFields);
+            if(!$addRes->isSuccess()){
                 $result->addErrors($addRes->getErrors());
             }
         }
@@ -108,7 +104,7 @@ class UserFieldInstaller
      * @param array $userFields
      * @return \Bitrix\Main\Result
      */
-    protected static function addCustomUserFields(array $userFields): Result
+    protected static function addUserFields(array $userFields): Result
     {
         global $APPLICATION;
         $result = new Result;
@@ -154,7 +150,7 @@ class UserFieldInstaller
             $userField['ENTITY_ID']     = $entityIdForUf;
             $userField['FIELD_NAME']    = $ufPrefix . $userField['FIELD_NAME'];
             $userField['XML_ID']        = $userField['FIELD_NAME'];
-            $userField['SORT']          = (int)$key > 0 ? (int)$key * 10 : 10;
+            $userField['SORT']          = $key > 0 ? $key * 10 : 10;
             $userField['SHOW_IN_LIST']  = 'N';//($userField['HIDDEN'] === 'Y') ? 'N' : 'Y';
             $userField['IS_SEARCHABLE'] = 'Y';
 
@@ -171,7 +167,6 @@ class UserFieldInstaller
             ];
 
             $userField['EDIT_FORM_LABEL'] = $title;
-            $userField['EDIT_FORM_LABEL'] = $title;
             $userField['LIST_COLUMN_LABEL'] = $title;
             $userField['LIST_FILTER_LABEL'] = $title;
             $userField['ERROR_MESSAGE']   = [
@@ -184,7 +179,7 @@ class UserFieldInstaller
 
             if (is_array($userField['LIST']))
             {
-                $userField['LIST'] = static::prepareUserFieldEnumData($userField['FIELD_NAME'], $userField['LIST']);
+                $userField['LIST'] = static::prepareUserFieldEnumData($userField['LIST']);
             }
 
             $preparedUserFields[] = $userField;
@@ -224,7 +219,9 @@ class UserFieldInstaller
                     'SHOW_NO_VALUE'    => 'Y',
                 ],
                 'LIST'         => [
-                    'Value 1','Value 2','Value 3',
+                    'xmlId1' => 'Value 1',
+                    'xmlId2' => 'Value 2',
+                    'xmlId3' => 'Value 3',
                 ]
             ],
             [
@@ -242,17 +239,23 @@ class UserFieldInstaller
         ];
     }
 
-    protected static function prepareUserFieldEnumData(string $fieldName, array $values): array
+    /**
+     * @param array $values
+     * @return array
+     */
+    protected static function prepareUserFieldEnumData(array $values): array
     {
         $arAddEnum = [];
-        foreach ($values as $key => $value)
+        $counter = 0;
+        foreach ($values as $xmlId => $value)
         {
-            $arAddEnum['n'.$key] = [
-                'XML_ID' => $fieldName.'_'.$key,
+            $arAddEnum['n'.$counter] = [
+                'XML_ID' => $xmlId,
                 'VALUE' => $value,
                 'DEF' => 'N',
-                'SORT' => $key > 0 ? (int)$key * 10 : 10
+                'SORT' => $counter > 0 ? $counter * 10 : 10
             ];
+            $counter++;
         }
         return $arAddEnum;
     }
