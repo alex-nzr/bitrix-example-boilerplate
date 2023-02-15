@@ -161,6 +161,7 @@ class vendor_project_dynamic extends CModule
     public function InstallEvents()
     {
         CbitEventManager::addBasicEventHandlers();
+        CbitEventManager::addRuntimeEventHandlers();
     }
 
     public function UnInstallEvents()
