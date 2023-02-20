@@ -16,6 +16,7 @@ use Bitrix\Crm\Model\Dynamic\Type;
 use Bitrix\Crm\Service\Context;
 use Bitrix\Crm\Service\Factory\Dynamic;
 use Bitrix\Crm\Service\Operation;
+use CCrmFieldInfoAttr;
 
 /**
  * Class Factory
@@ -23,6 +24,9 @@ use Bitrix\Crm\Service\Operation;
  */
 class Factory extends Dynamic
 {
+    /**
+     * @param \Bitrix\Crm\Model\Dynamic\Type $type
+     */
     public function __construct(Type $type)
     {
         parent::__construct($type);
@@ -56,5 +60,18 @@ class Factory extends Dynamic
     public function getDeleteOperation(Item $item, Context $context = null): Operation\Delete
     {
         return parent::getDeleteOperation($item, $context);
+    }
+
+    /**
+     * @return \Vendor\Project\Dynamic\Service\EditorAdapter
+     */
+    public function getEditorAdapter(): \Bitrix\Crm\Service\EditorAdapter
+    {
+        if (!$this->editorAdapter)
+        {
+            $this->editorAdapter = new EditorAdapter($this->getFieldsCollection(), $this->getDependantFieldsMap());
+        }
+
+        return parent::getEditorAdapter();
     }
 }

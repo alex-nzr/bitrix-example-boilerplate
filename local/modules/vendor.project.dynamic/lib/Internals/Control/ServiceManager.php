@@ -124,8 +124,6 @@ class ServiceManager
     private function addCustomCrmServices()
     {
         ServiceLocator::getInstance()->addInstance('crm.service.container', new Container());
-        ServiceLocator::getInstance()->addInstance('crm.service.router', new Router());
-        ServiceLocator::getInstance()->addInstance('crm.filter.factory', new FilterFactory());
     }
 
     /**

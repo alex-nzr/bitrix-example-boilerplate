@@ -13,10 +13,12 @@
 namespace Vendor\Project\Dynamic\Entity;
 
 use Bitrix\Crm\Item;
+use Bitrix\Crm\Model\ItemCategoryTable;
 use Bitrix\Crm\Service\Factory;
 use Bitrix\Main\Config\Option;
 use Bitrix\Crm\Model\Dynamic\Type;
 use Bitrix\Main\Result;
+use Vendor\Project\Dynamic\Config\Configuration;
 use Vendor\Project\Dynamic\Config\Constants;
 use Vendor\Project\Dynamic\Internals\Control\ServiceManager;
 use Vendor\Project\Dynamic\Service\Container;
@@ -58,10 +60,7 @@ class Dynamic
     {
         if(static::$instance === null)
         {
-            $typeId = (int)Option::get(
-                ServiceManager::getModuleId(), Constants::OPTION_KEY_DYNAMIC_TYPE_ID
-            );
-            static::$instance = new static($typeId);
+            static::$instance = new static(Configuration::getInstance()->getTypeIdFromOption());
         }
         return static::$instance;
     }
@@ -245,6 +244,59 @@ class Dynamic
     private function setEntityTypeId(): void
     {
         $this->entityTypeId = !empty($this->typeObject) ? (int)$this->typeObject->getEntityTypeId() : 0;
+    }
+
+    /**
+     * @param int $categoryId
+     * @return string
+     * @throws \Exception
+     */
+    public function getCategoryCodeById(int $categoryId): string
+    {
+        if (!array_key_exists($categoryId, $this->customCategories))
+        {
+            $this->fillCategories();
+        }
+        return (string)$this->customCategories[$categoryId];
+    }
+
+    /**
+     * @param string $categoryCode
+     * @return int
+     * @throws \Exception
+     */
+    public function getCategoryIdByCode(string $categoryCode): int
+    {
+        if (!in_array($categoryCode, $this->customCategories))
+        {
+            $this->fillCategories();
+        }
+        return (int)array_search($categoryCode, $this->customCategories);
+    }
+
+    /**
+     * @return void
+     * @throws \Exception
+     */
+    protected function fillCategories(): void
+    {
+        $categories = ItemCategoryTable::query()
+            ->setSelect(['ID', 'CODE', 'IS_DEFAULT'])
+            ->setFilter(['=ENTITY_TYPE_ID' => $this->entityTypeId])
+            ->fetchAll();
+        if (!empty($categories))
+        {
+            foreach ($categories as $category)
+            {
+                $id   = (int)$category['ID'];
+                $code = $category['CODE'];
+                if (empty($code) && ($id === $this->getDefaultCategoryId()))
+                {
+                    $code = Constants::DYNAMIC_CATEGORY_DEFAULT_CODE;
+                }
+                $this->customCategories[$id] = $code;
+            }
+        }
     }
 
     private function __clone() {}

@@ -80,7 +80,7 @@ class Installer
     /**
      * @throws \Exception
      */
-    public static function uninstallModule()
+    public static function uninstallModule(): void
     {
         $result = TypeInstaller::uninstall();
         if (!$result->isSuccess())
@@ -91,6 +91,7 @@ class Installer
         {
             CustomSectionInstaller::uninstallCustomSection();
             DBTableInstaller::uninstall();
+            Option::delete(ServiceManager::getModuleId());
         }
     }
 }

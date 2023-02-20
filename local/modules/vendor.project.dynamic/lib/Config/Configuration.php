@@ -11,6 +11,7 @@
  */
 namespace Vendor\Project\Dynamic\Config;
 
+use Bitrix\Main\Config\Option;
 use Vendor\Project\Dynamic\Internals\Control\ServiceManager;
 use Vendor\Project\Dynamic\Service\Integration\Intranet\CustomSectionProvider;
 
@@ -59,6 +60,16 @@ class Configuration
                 'COMPONENT' => CustomSectionProvider::DEFAULT_LIST_COMPONENT,
             ],
         ];
+    }
+
+    /**
+     * @return int
+     */
+    public function getTypeIdFromOption(): int
+    {
+        return (int)Option::get(
+            ServiceManager::getModuleId(), Constants::OPTION_KEY_DYNAMIC_TYPE_ID
+        );
     }
 
     private function __clone(){}

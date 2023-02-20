@@ -13,6 +13,7 @@ namespace Vendor\Project\Dynamic\Service;
 
 use Bitrix\Main\DI\ServiceLocator;
 use Vendor\Project\Dynamic\Entity;
+use Vendor\Project\Dynamic\Filter;
 use Vendor\Project\Dynamic\Service\Access\UserPermissions;
 
 /**
@@ -109,5 +110,33 @@ class Container extends \Bitrix\Crm\Service\Container
     protected function createUserPermissions(int $userId): \Bitrix\Crm\Service\UserPermissions
     {
         return new UserPermissions($userId);
+    }
+
+    /**
+     * @return \Vendor\Project\Dynamic\Filter\FilterFactory
+     * @throws \Exception
+     */
+    public function getFilterFactory(): Filter\FilterFactory
+    {
+        $identifier = static::getIdentifierByClassName(Filter\FilterFactory::class);
+        if(!ServiceLocator::getInstance()->has($identifier))
+        {
+            ServiceLocator::getInstance()->addInstance($identifier, new Filter\FilterFactory);
+        }
+        return ServiceLocator::getInstance()->get($identifier);
+    }
+
+    /**
+     * @return \Vendor\Project\Dynamic\Service\Context
+     * @throws \Exception
+     */
+    public function getContext(): Context
+    {
+        $identifier = static::getIdentifierByClassName(Context::class);
+        if(!ServiceLocator::getInstance()->has($identifier))
+        {
+            ServiceLocator::getInstance()->addInstance($identifier, new Context);
+        }
+        return ServiceLocator::getInstance()->get($identifier);
     }
 }

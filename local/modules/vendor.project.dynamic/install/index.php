@@ -155,13 +155,11 @@ class vendor_project_dynamic extends CModule
     public function UnInstallDB()
     {
         Installer::uninstallModule();
-        Option::delete($this->MODULE_ID);
     }
 
     public function InstallEvents()
     {
         CbitEventManager::addBasicEventHandlers();
-        CbitEventManager::addRuntimeEventHandlers();
     }
 
     public function UnInstallEvents()

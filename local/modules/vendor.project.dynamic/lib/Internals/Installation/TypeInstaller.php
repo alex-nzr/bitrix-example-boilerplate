@@ -22,6 +22,7 @@ use Bitrix\Main\ORM\Data\UpdateResult;
 use Bitrix\Main\Result;
 use Vendor\Project\Dynamic\Config\Constants;
 use Vendor\Project\Dynamic\Internals\Control\ServiceManager;
+use Vendor\Project\Dynamic\Internals\Debug\Logger;
 use Vendor\Project\Dynamic\Service\Container;
 use CCrmOwnerType;
 
@@ -71,15 +72,23 @@ class TypeInstaller
      */
     public static function uninstall(): Result
     {
-        $container = Container::getInstance();
+        $container     = Container::getInstance();
         $typeDataClass = $container->getDynamicTypeDataClass();
-        $typeCode = Constants::DYNAMIC_TYPE_CODE;
-        $existsId = static::getTypeIdByCode($typeCode, $typeDataClass);
+        $typeCode      = Constants::DYNAMIC_TYPE_CODE;
+        $existsId      = static::getTypeIdByCode($typeCode, $typeDataClass);
 
-        if (!empty($typeId))
+        if (!empty($existsId))
         {
             $type = $typeDataClass::getByPrimary($existsId)->fetchObject();
-            return $type->delete();
+            $result = $type->delete();
+            if (!$result->isSuccess())
+            {
+                Logger::printToFile('Can not delete type object. ' . implode('; ', $result->getErrorMessages()));
+            }
+        }
+        else
+        {
+            Logger::printToFile('Can not find type by ID - ' . $existsId);
         }
 
         return new Result;

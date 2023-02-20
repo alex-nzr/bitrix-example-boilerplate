@@ -12,12 +12,21 @@
 
 namespace Vendor\Project\Dynamic\Service\Integration\Crm\Entity;
 
+use Bitrix\Crm\Attribute\FieldAttributeManager;
 use Bitrix\Crm\Entity\EntityEditorConfigScope;
+use Bitrix\Crm\Item;
 use Bitrix\Crm\Model\ItemCategoryTable;
+use Bitrix\Main\Config\Option;
 use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\Error;
 use Bitrix\Main\Result;
+use CCrmOwnerType;
 use Exception;
+use Vendor\Project\Dynamic\Config\Constants;
+use Vendor\Project\Dynamic\Internals\Contract\IEditorConfig;
+use Vendor\Project\Dynamic\Internals\Control\ServiceManager;
+use Vendor\Project\Dynamic\Internals\EditorConfig;
+use Vendor\Project\Dynamic\Service\EntityEditor\FieldManager;
 
 /**
  * Class EntityEditorConfig
@@ -36,63 +45,75 @@ class EntityEditorConfig extends \Bitrix\Crm\Entity\EntityEditorConfig
         $categoryId = $this->extras['CATEGORY_ID'];
         if (is_numeric($categoryId) && (int)$categoryId > 0)
         {
-            return 'DYNAMIC_'. $this->entityTypeID .'_details_C'. $categoryId;
+            return CCrmOwnerType::ResolveName($this->entityTypeID) .'_details_C'. $categoryId;
         }
         return parent::getConfigId();
     }
 
-    private static function getDefaultEditorConfig($typeId): array
-    {
-        return [
-            [
-                'name' =>  "example",
-                'title' => "Example section",
-                'type' => "section",
-                'elements' => [
-                    [
-                        'name' => "UF_CRM_". $typeId ."_EXAMPLE_STRING",
-                        'optionFlags' => '1'
-                    ],
-                    [
-                        'name' => "UF_CRM_". $typeId ."_EXAMPLE_LIST",
-                        'optionFlags' => '1'
-                    ],
-                    [
-                        'name' => "UF_CRM_". $typeId ."_EXAMPLE_DATE",
-                        'optionFlags' => '1'
-                    ],
-                ]
-            ],
-        ];
-    }
-
     /**
      * @param int $entityTypeId
-     * @param int $typeId
      * @return \Bitrix\Main\Result
      */
-    public static function setTypeCardConfig(int $entityTypeId, int $typeId): Result
+    public static function setTypeCardConfig(int $entityTypeId): Result
     {
         $result = new Result();
         try
         {
-            $userID            = !empty($GLOBALS['USER']) ? CurrentUser::get()->getId() : 1;
-            $scope             = EntityEditorConfigScope::COMMON;
-            $cardConfiguration = static::getDefaultEditorConfig($typeId);
-
-            if (!empty($cardConfiguration))
+            $typeId = (int)Option::get(ServiceManager::getModuleId(), Constants::OPTION_KEY_DYNAMIC_TYPE_ID);
+            if ($typeId <= 0)
             {
-                $categories = ItemCategoryTable::query()->where('ENTITY_TYPE_ID', $entityTypeId)->fetchCollection();
-                foreach ($categories as $category)
-                {
-                    $extras = [
-                        'CATEGORY_ID' => $category->getId(),
-                    ];
+                throw new Exception('Error in '.__METHOD__.': typeId must be greater than 0');
+            }
 
-                    $config = new static($entityTypeId, $userID, $scope, $extras);
-                    $data = $config->normalize($cardConfiguration);
-                    $data = $config->sanitize($data);
-                    $config->set($data);
+            $userId     = !empty($GLOBALS['USER']) ? CurrentUser::get()->getId() : 1;
+            $scope      = EntityEditorConfigScope::COMMON;
+            $categories = ItemCategoryTable::query()
+                ->setSelect(['ID', 'CODE', 'IS_DEFAULT'])
+                ->where('ENTITY_TYPE_ID', $entityTypeId)
+                ->fetchCollection();
+
+            //clean attributes before save new configuration
+            FieldAttributeManager::deleteByOwnerType($entityTypeId);
+
+            foreach ($categories as $category)
+            {
+                $categoryId = $category->getId();
+                $code = (string)$category->get('CODE');
+                if (empty($code) && ($category->get('IS_DEFAULT') === true))
+                {
+                    $code = Constants::DYNAMIC_CATEGORY_DEFAULT_CODE;
+                }
+
+                $editorConfig = EditorConfig\Factory::getInstance($typeId, $entityTypeId)->createConfig($code);
+
+                if ($editorConfig instanceof IEditorConfig)
+                {
+                    $cardConfiguration = $editorConfig->getEditorConfigTemplate();
+                    if (!empty($cardConfiguration))
+                    {
+                        $extras = [
+                            'CATEGORY_ID' => $categoryId,
+                        ];
+
+                        $crmConfig = new static($entityTypeId, $userId, $scope, $extras);
+                        $data      = $crmConfig->normalize($cardConfiguration);
+                        $data      = $crmConfig->sanitize($data);
+                        $crmConfig->set($data);
+
+                        //todo доработать под сохранение обязательных полей для определённых стадий
+                        foreach ($editorConfig->getRequiredFields() as $requiredFieldName)
+                        {
+                            FieldManager::getInstance($entityTypeId)->saveFieldAsRequired($requiredFieldName, $categoryId);
+                        }
+                    }
+                    else
+                    {
+                        $result->addError(new Error("Can not find card configuration for category '$code'"));
+                    }
+                }
+                else
+                {
+                    $result->addError(new Error("Can not create editorConfig object"));
                 }
             }
         }
