@@ -22,6 +22,7 @@ use Bitrix\Main\Error;
 use Bitrix\Main\Result;
 use CCrmOwnerType;
 use Exception;
+use Vendor\Project\Dynamic\Config\Configuration;
 use Vendor\Project\Dynamic\Config\Constants;
 use Vendor\Project\Dynamic\Internals\Contract\IEditorConfig;
 use Vendor\Project\Dynamic\Internals\Control\ServiceManager;
@@ -59,7 +60,7 @@ class EntityEditorConfig extends \Bitrix\Crm\Entity\EntityEditorConfig
         $result = new Result();
         try
         {
-            $typeId = (int)Option::get(ServiceManager::getModuleId(), Constants::OPTION_KEY_DYNAMIC_TYPE_ID);
+            $typeId = Configuration::getInstance()->getTypeIdFromOption();
             if ($typeId <= 0)
             {
                 throw new Exception('Error in '.__METHOD__.': typeId must be greater than 0');

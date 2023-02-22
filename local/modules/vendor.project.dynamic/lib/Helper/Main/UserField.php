@@ -54,6 +54,25 @@ class UserField
     }
 
     /**
+     * @param int $userFieldId
+     * @return array
+     */
+    public static function getUfListXmlIdsByFieldId(int $userFieldId): array
+    {
+        $filter = [
+            "USER_FIELD_ID" => $userFieldId
+        ];
+        $userField = CUserFieldEnum::GetList([], $filter);
+
+        $values = [];
+        while($userFieldAr = $userField->GetNext())
+        {
+            $values[$userFieldAr["ID"]] = $userFieldAr["XML_ID"];
+        }
+        return $values;
+    }
+
+    /**
      * @param string $userFieldCode
      * @return array
      */

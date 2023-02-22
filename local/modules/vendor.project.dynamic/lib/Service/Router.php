@@ -65,8 +65,7 @@ class Router extends \Bitrix\Crm\Service\Router
                     break;
 
                 case 'bitrix:crm.item.details':
-                    //TODO add to the detail component after replacement
-                    ServiceManager::getInstance()->addDetailPageExtensions();
+                    //detail page extensions called in EventManager
                     //$newComponent = 'myNewDetailComponent';
 
                     $this->isListPage = false;

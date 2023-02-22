@@ -17,6 +17,7 @@ use Bitrix\Crm\Item;
 use CCrmFieldInfoAttr;
 use Vendor\Project\Dynamic\Entity\Dynamic;
 use Vendor\Project\Dynamic\Internals\Contract\IEditorConfig;
+use Vendor\Project\Dynamic\Internals\Control\EventManager;
 use Vendor\Project\Dynamic\Service\EntityEditor\FieldManager;
 
 /**
@@ -54,6 +55,7 @@ class EditorAdapter extends \Bitrix\Crm\Service\EditorAdapter
         $this->crmContext->setItem($item);
         $this->markReadonlyFields($this->crmContext);
         $this->markHiddenFields($this->crmContext);
+        EventManager::sendEntityDetailsContextReadyEvent();
         return parent::processByItem($item, $stages, $componentParameters);
     }
 

@@ -21,10 +21,8 @@ use Bitrix\Main\Request;
 use Bitrix\Main\UI\Extension;
 use Vendor\Project\Dynamic\Controller;
 use Vendor\Project\Dynamic\Entity;
-use Vendor\Project\Dynamic\Filter\FilterFactory;
 use Vendor\Project\Dynamic\Service\Container;
 use Vendor\Project\Dynamic\Service\Integration\Intranet\CustomSectionProvider;
-use Vendor\Project\Dynamic\Service\Router;
 use Exception;
 
 /**
@@ -54,7 +52,7 @@ class ServiceManager
     /**
      * @throws \Exception
      */
-    public function includeModule()
+    public function includeModule(): void
     {
         $this->includeControllers();
         $this->includeDependentModules();
@@ -121,7 +119,7 @@ class ServiceManager
     /**
      * @return void
      */
-    private function addCustomCrmServices()
+    private function addCustomCrmServices(): void
     {
         ServiceLocator::getInstance()->addInstance('crm.service.container', new Container());
     }
@@ -129,7 +127,7 @@ class ServiceManager
     /**
      * @return void
      */
-    private function addCustomSectionProvider()
+    private function addCustomSectionProvider(): void
     {
         $crmConfig = Configuration::getInstance('crm');
         $customSectionConfig = $crmConfig->get('intranet.customSection');
@@ -155,7 +153,7 @@ class ServiceManager
         {
             $arr = explode(DIRECTORY_SEPARATOR, __FILE__);
             $i = array_search("modules", $arr);
-            static::$moduleId = (string)$arr[$i + 1];
+            static::$moduleId = $arr[$i + 1];
         }
         return static::$moduleId;
     }
@@ -169,7 +167,7 @@ class ServiceManager
         {
             $arr = explode(DIRECTORY_SEPARATOR, __FILE__);
             $i = array_search("modules", $arr);
-            static::$moduleParentDirectoryName = (string)$arr[$i - 1];
+            static::$moduleParentDirectoryName = $arr[$i - 1];
         }
         return static::$moduleParentDirectoryName;
     }
@@ -182,10 +180,16 @@ class ServiceManager
     }
 
     /**
+     * called on 'onEntityDetailsContextReady' in \Vendor\Project\Dynamic\Internals\Control\EventManager
      * @return void
+     * @throws \Exception
      */
-    public function addDetailPageExtensions(): void
+    public static function addDetailPageExtensions(): void
     {
+        Extension::load([
+            'vendor.project.dynamic.entity-detail-manager',
+            'vendor.project.dynamic.ui-detail'
+        ]);
     }
 
     /**

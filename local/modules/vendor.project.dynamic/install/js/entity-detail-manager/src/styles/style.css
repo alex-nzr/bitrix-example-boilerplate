@@ -1,0 +1,17 @@
+/**general*********************************************************/
+.ui-element-hidden{
+    display: none!important;
+}
+.ui-element-disabled{
+    pointer-events: none!important;
+}
+/******************************************************************/
+
+/**hide timeline mode**********************************************/
+body.editor-mode-hide-timeline-column .crm-entity-stream-container{
+    display: none!important;
+}
+body.editor-mode-hide-timeline-column .crm-entity-card-container{
+    width: 100% !important;
+}
+/******************************************************************/

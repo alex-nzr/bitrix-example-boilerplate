@@ -15,6 +15,8 @@ use Bitrix\Main\Config\Option;
 use Bitrix\Main\Error;
 use Bitrix\Main\Result;
 use Bitrix\Main\Type\Date;
+use Exception;
+use Vendor\Project\Dynamic\Config\Configuration;
 use Vendor\Project\Dynamic\Config\Constants;
 use Vendor\Project\Dynamic\Helper;
 use Vendor\Project\Dynamic\Internals\Control\ServiceManager;
@@ -52,22 +54,24 @@ class UserFieldInstaller
                 {
                     if ($userField['USER_TYPE_ID'] === 'enumeration' && is_array($userField['LIST']))
                     {
-                        $currentValues = Helper\Main\UserField::getUfListValuesByFieldId((int)$arField['ID']);
+                        $currentXmlIds = Helper\Main\UserField::getUfListXmlIdsByFieldId((int)$arField['ID']);
 
                         foreach ($userField['LIST'] as $key => $valueAr)
                         {
-                            if (in_array($valueAr['VALUE'], $currentValues))
+                            if (in_array($valueAr['XML_ID'], $currentXmlIds))
                             {
+                                $enumId = array_search($valueAr['XML_ID'], $currentXmlIds);
+                                $userField['LIST'][$enumId] = $valueAr;
                                 unset(
-                                    $currentValues[array_search($valueAr['VALUE'], $currentValues)],
+                                    $currentXmlIds[array_search($valueAr['XML_ID'], $currentXmlIds)],
                                     $userField['LIST'][$key]
                                 );
                             }
                         }
 
-                        if (count($currentValues) > 0)
+                        if (count($currentXmlIds) > 0)
                         {
-                            foreach ($currentValues as $enumId => $enumValue)
+                            foreach ($currentXmlIds as $enumId => $xmlId)
                             {
                                 $userField['LIST'][$enumId] = [
                                     "DEL" => "Y",
@@ -141,7 +145,12 @@ class UserFieldInstaller
         $userFields = static::getUserFieldsDescription();
         $preparedUserFields = [];
 
-        $typeId        = Option::get(ServiceManager::getModuleId(), Constants::OPTION_KEY_DYNAMIC_TYPE_ID);
+        $typeId        = Configuration::getInstance()->getTypeIdFromOption();
+        if ($typeId <= 0)
+        {
+            throw new Exception('Error in '.__METHOD__.': typeId must be greater than 0');
+        }
+
         $entityIdForUf = 'CRM_' . $typeId;
         $ufPrefix      = 'UF_CRM_' . $typeId . '_';
 
@@ -179,7 +188,7 @@ class UserFieldInstaller
 
             if (is_array($userField['LIST']))
             {
-                $userField['LIST'] = static::prepareUserFieldEnumData($userField['LIST']);
+                $userField['LIST'] = static::prepareUserFieldEnumData($userField['FIELD_NAME'], $userField['LIST']);
             }
 
             $preparedUserFields[] = $userField;
@@ -214,14 +223,15 @@ class UserFieldInstaller
                 'MANDATORY'    => 'N',
                 'EDIT_IN_LIST' => '',
                 'SETTINGS'     => [
-                    'DISPLAY'          => 'UI',
+                    'DISPLAY'          => 'DIALOG',
                     'LIST_HEIGHT'      => 5,
                     'SHOW_NO_VALUE'    => 'Y',
                 ],
                 'LIST'         => [
-                    'xmlId1' => 'Value 1',
+                    //'xmlId1' => 'Value 1', //test deleting
                     'xmlId2' => 'Value 2',
-                    'xmlId3' => 'Value 3',
+                    'xmlId3' => 'Value 3 - changed',
+                    'xmlId4' => 'Value 4',
                 ]
             ],
             [
@@ -240,15 +250,20 @@ class UserFieldInstaller
     }
 
     /**
+     * @param string $fieldName
      * @param array $values
      * @return array
      */
-    protected static function prepareUserFieldEnumData(array $values): array
+    protected static function prepareUserFieldEnumData(string $fieldName, array $values): array
     {
         $arAddEnum = [];
         $counter = 0;
         foreach ($values as $xmlId => $value)
         {
+            if (empty($xmlId) || (intval($xmlId) === $counter))
+            {
+                $xmlId = $fieldName.'_'.$counter;
+            }
             $arAddEnum['n'.$counter] = [
                 'XML_ID' => $xmlId,
                 'VALUE' => $value,

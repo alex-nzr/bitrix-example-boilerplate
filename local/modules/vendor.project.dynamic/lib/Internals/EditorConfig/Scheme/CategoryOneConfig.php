@@ -13,6 +13,7 @@ namespace Vendor\Project\Dynamic\Internals\EditorConfig\Scheme;
 
 use Bitrix\Crm\Item;
 use Vendor\Project\Dynamic\Internals\EditorConfig\BaseConfig;
+use Vendor\Project\Dynamic\Service\Container;
 
 /**
  * @class CategoryOneConfig
@@ -112,5 +113,23 @@ class CategoryOneConfig extends BaseConfig
             "UF_CRM_". $this->typeId ."_EXAMPLE_LIST",
             "UF_CRM_". $this->typeId ."_EXAMPLE_DATE",
         ];
+    }
+
+    /**
+     * @return array
+     * @throws \Exception
+     */
+    public function getHiddenFields(): array
+    {
+        $fields = [];
+        $item   = Container::getInstance()->getContext()->getItem();
+        if ($item)
+        {
+            if ($item->isNew())
+            {
+                $fields[] = Item::FIELD_NAME_ASSIGNED;
+            }
+        }
+        return array_merge(parent::getHiddenFields(), $fields);
     }
 }

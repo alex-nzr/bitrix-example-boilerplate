@@ -11,6 +11,7 @@
  */
 namespace Vendor\Project\Dynamic\Internals\Control;
 
+use Bitrix\Main\Event;
 use Bitrix\Main\EventManager as BitrixEventManager;
 use Vendor\Project\Dynamic\EventHandler;
 
@@ -20,17 +21,30 @@ use Vendor\Project\Dynamic\EventHandler;
  */
 class EventManager
 {
-    public static function addBasicEventHandlers()
+    const ON_ENTITY_DETAILS_CONTEXT = 'onEntityDetailsContextReady';
+
+    /**
+     * @return void
+     */
+    public static function addBasicEventHandlers(): void
     {
         static::addEventHandlersFromArray(static::getBasicEvents(), true);
     }
 
-    public static function addRuntimeEventHandlers()
+    /**
+     * @return void
+     */
+    public static function addRuntimeEventHandlers(): void
     {
         static::addEventHandlersFromArray(static::getRunTimeEvents());
     }
 
-    private static function addEventHandlersFromArray(array $events, bool $register = false)
+    /**
+     * @param array $events
+     * @param bool $register
+     * @return void
+     */
+    private static function addEventHandlersFromArray(array $events, bool $register = false): void
     {
         foreach ($events as $moduleId => $event)
         {
@@ -64,7 +78,10 @@ class EventManager
         }
     }
 
-    public static function removeBasicEventHandlers()
+    /**
+     * @return void
+     */
+    public static function removeBasicEventHandlers(): void
     {
         foreach (static::getBasicEvents() as $moduleId => $event)
         {
@@ -117,6 +134,24 @@ class EventManager
                     ],
                 ],
             ],
+            ServiceManager::getModuleId() => [
+                static::ON_ENTITY_DETAILS_CONTEXT => [
+                    [
+                        'class'  => ServiceManager::class,
+                        'method' => 'addDetailPageExtensions',
+                        'sort'   => 500
+                    ],
+                ],
+            ]
         ];
+    }
+
+    /**
+     * @return void
+     */
+    public static function sendEntityDetailsContextReadyEvent(): void
+    {
+        $event = new Event(ServiceManager::getModuleId(),static::ON_ENTITY_DETAILS_CONTEXT);
+        $event->send();
     }
 }
