@@ -70,6 +70,32 @@ class Factory extends Dynamic
         if (!$this->editorAdapter)
         {
             $this->editorAdapter = new EditorAdapter($this->getFieldsCollection(), $this->getDependantFieldsMap());
+            if ($this->isClientEnabled())
+            {
+                $this->editorAdapter->addEntityField(
+                    EditorAdapter::getClientField(
+                        $this->getFieldCaption(EditorAdapter::FIELD_CLIENT),
+                        EditorAdapter::FIELD_CLIENT,
+                        EditorAdapter::FIELD_CLIENT_DATA_NAME,
+                        ['entityTypeId' => $this->getEntityTypeId()]
+                    )
+                );
+            }
+            if ($this->isLinkWithProductsEnabled())
+            {
+                $this->editorAdapter->addEntityField(
+                    EditorAdapter::getOpportunityField(
+                        $this->getFieldCaption(EditorAdapter::FIELD_OPPORTUNITY),
+                        EditorAdapter::FIELD_OPPORTUNITY,
+                        $this->isPaymentsEnabled()
+                    )
+                );
+                $this->editorAdapter->addEntityField(
+                    EditorAdapter::getProductRowSummaryField(
+                        $this->getFieldCaption(EditorAdapter::FIELD_PRODUCT_ROW_SUMMARY)
+                    )
+                );
+            }
         }
 
         return parent::getEditorAdapter();
