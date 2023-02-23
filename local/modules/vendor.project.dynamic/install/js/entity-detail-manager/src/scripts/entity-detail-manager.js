@@ -19,17 +19,42 @@ export default class EntityDetailManager
 		this.entityTypeId 		 	 	 = options.entityTypeId;
 		this.entityId 			 	 	 = options.entityId;
 		this.isNew				 	 	 = options.isNew;
+
+		//редактирование названия элемента в заголовке страницы
 		this.pageTitleEditable 		 	 = options.pageTitleEditable;
+
+		//кнопка смены воронки около заголовка
 		this.enableCategorySelector   	 = options.enableCategorySelector;
+
+		//кнопка смены/сохранения общего и перснонального конфига карточки
 		this.cardConfigEditable 	 	 = options.cardConfigEditable;
+
+		//создание новый секций
 		this.enableSectionCreation 	 	 = options.enableSectionCreation;
+
+		//редактирование названия секции
 		this.enableSectionEdit 		 	 = options.enableSectionEdit;
+
+		//кнопка настроек рядом с полем
 		this.enableFieldsContextMenu 	 = options.enableFieldsContextMenu;
+
+		//кнопка изменить и перевод секции в режим редактирования
 		this.enableSectionEditMode 	 	 = options.enableSectionEditMode;
+
+		//скрывать секцию если в ней нет видимых полей. Если поле скрыто, потому что нет значения, то секция останется
 		this.showEmptySections 		 	 = options.showEmptySections;
+
+		//кнопки коммуникаций в тулбаре (звонок, чат и т.п.)
 		this.enableCommunicationControls = options.enableCommunicationControls;
+
+		//в режиме создания нового элемента скрывать таймлайн и делать форму на всю страницу
 		this.hideTimelineInCreationPage  = options.hideTimelineInCreationPage;
+
+		//переключение стадий в шапке страницы
 		this.isStageFlowActive			 = options.isStageFlowActive;
+
+		//обновлять контент страницы при смене стадии в шапке.
+		//Для страницы открытой в слайдере будет плавное обновление, для обычной страницы - перезагрузка
 		this.reloadOnStageChange		 = options.reloadOnStageChange;
 
 		this.init();
@@ -167,7 +192,7 @@ export default class EntityDetailManager
      * @param field
      */
 	prepareFieldParams(field){
-		const readonlyFields = [];
+		/*const readonlyFields = [];
 		if(readonlyFields.includes(field._id))
 		{
 			field._schemeElement._isEditable=false;
@@ -178,7 +203,7 @@ export default class EntityDetailManager
 				input.setAttribute('disabled', true);
 				input.onclick = () => false;
 			});
-		}
+		}*/
 	}
 
 	addCssClasses() {
