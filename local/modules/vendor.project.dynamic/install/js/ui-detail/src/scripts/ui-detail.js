@@ -47,6 +47,7 @@ export class UiDetail
 			showEmptySections: 		     false,
 			hideTimelineInCreationPage:  true,
 			isStageFlowActive:			 this.isAdmin,
+			reloadOnStageChange:		 true,
 		});
 
 		this.initEvents();

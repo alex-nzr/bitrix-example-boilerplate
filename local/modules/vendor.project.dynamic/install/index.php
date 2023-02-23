@@ -261,8 +261,8 @@ class vendor_project_dynamic extends CModule
         }
 
         $requireModules = [
-            'main' => '22.0.0',
-            'crm'  => '21.18',
+            'main' => '22.500.400',
+            'crm'  => '22.1400.300',
         ];
 
         foreach ($requireModules as $moduleName => $moduleVersion)

@@ -18,6 +18,7 @@ use CCrmFieldInfoAttr;
 use Vendor\Project\Dynamic\Entity\Dynamic;
 use Vendor\Project\Dynamic\Internals\Contract\IEditorConfig;
 use Vendor\Project\Dynamic\Internals\Control\EventManager;
+use Vendor\Project\Dynamic\Internals\EditorConfig;
 use Vendor\Project\Dynamic\Service\EntityEditor\FieldManager;
 
 /**
@@ -29,6 +30,7 @@ class EditorAdapter extends \Bitrix\Crm\Service\EditorAdapter
     protected static  ?Field\Collection $staticFieldsCollection = null;
     protected int     $entityTypeId;
     protected Context $crmContext;
+    protected int $typeId;
 
     /**
      * @param \Bitrix\Crm\Field\Collection $fieldsCollection
@@ -38,6 +40,7 @@ class EditorAdapter extends \Bitrix\Crm\Service\EditorAdapter
     public function __construct(Field\Collection $fieldsCollection, array $dependantFieldsMap = [])
     {
         static::$staticFieldsCollection = $fieldsCollection;
+        $this->typeId = Dynamic::getInstance()->getEntityTypeId();
         $this->entityTypeId = Dynamic::getInstance()->getEntityTypeId();
         $this->crmContext   = Container::getInstance()->getContext();
         parent::__construct($fieldsCollection, $dependantFieldsMap);
@@ -53,8 +56,10 @@ class EditorAdapter extends \Bitrix\Crm\Service\EditorAdapter
     public function processByItem(Item $item, EO_Status_Collection $stages, array $componentParameters = []): EditorAdapter
     {
         $this->crmContext->setItem($item);
-        $this->markReadonlyFields($this->crmContext);
-        $this->markHiddenFields($this->crmContext);
+        $categoryCode = Dynamic::getInstance()->getCategoryCodeById($item->getCategoryId());
+        $editorConfig = EditorConfig\Factory::getInstance($this->typeId, $this->entityTypeId)->createConfig($categoryCode);
+        $this->markReadonlyFields($editorConfig);
+        $this->markHiddenFields($editorConfig);
         EventManager::sendEntityDetailsContextReadyEvent();
         return parent::processByItem($item, $stages, $componentParameters);
     }
@@ -102,28 +107,26 @@ class EditorAdapter extends \Bitrix\Crm\Service\EditorAdapter
     }
 
     /**
-     * @param \Vendor\Project\Dynamic\Service\Context $context
+     * @param \Vendor\Project\Dynamic\Internals\Contract\IEditorConfig $config
      * @return void
-     * @throws \Exception
      */
-    protected function markReadonlyFields(Context $context): void
+    protected function markReadonlyFields(IEditorConfig $config): void
     {
-        FieldManager::getInstance($this->entityTypeId)->markReadonlyFieldsByContext(
+        FieldManager::getInstance($this->entityTypeId)->markReadonlyFieldsByConfig(
             $this->fieldsCollection,
-            $context
+            $config
         );
     }
 
     /**
-     * @param \Vendor\Project\Dynamic\Service\Context $context
+     * @param \Vendor\Project\Dynamic\Internals\Contract\IEditorConfig $config
      * @return void
-     * @throws \Exception
      */
-    protected function markHiddenFields(Context $context): void
+    protected function markHiddenFields(IEditorConfig $config): void
     {
-        FieldManager::getInstance($this->entityTypeId)->markHiddenFieldsByContext(
+        FieldManager::getInstance($this->entityTypeId)->markHiddenFieldsByConfig(
             $this->fieldsCollection,
-            $context
+            $config
         );
     }
 

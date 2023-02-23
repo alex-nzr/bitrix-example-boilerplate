@@ -19,6 +19,7 @@ use Bitrix\Crm\Field\Collection;
 use CCrmFieldInfoAttr;
 use Exception;
 use Vendor\Project\Dynamic\Entity\Dynamic;
+use Vendor\Project\Dynamic\Internals\Contract\IEditorConfig;
 use Vendor\Project\Dynamic\Internals\EditorConfig;
 use Vendor\Project\Dynamic\Service\Container;
 use Vendor\Project\Dynamic\Service\Context;
@@ -95,25 +96,14 @@ class FieldManager
 
     /**
      * @param \Bitrix\Crm\Field\Collection $fieldCollection
-     * @param \Vendor\Project\Dynamic\Service\Context|null $context
+     * @param \Vendor\Project\Dynamic\Internals\Contract\IEditorConfig|null $config
      * @return void
-     * @throws \Exception
      */
-    public function markReadonlyFieldsByContext(Collection $fieldCollection, ?Context $context = null): void
+    public function markReadonlyFieldsByConfig(Collection $fieldCollection, ?IEditorConfig $config = null): void
     {
-        if (!is_null($context))
+        if (!is_null($config))
         {
-            $context = Container::getInstance()->getContext();
-        }
-
-        $typeId       = Dynamic::getInstance()->getTypeId();
-        $contextItem  = $context->getItem();
-        $categoryCode = Dynamic::getInstance()->getCategoryCodeById($contextItem->getCategoryId());
-        $editorConfig = EditorConfig\Factory::getInstance($typeId, $this->entityTypeId)->createConfig($categoryCode);
-
-        if (!is_null($editorConfig))
-        {
-            $readonlyFields = $editorConfig->getReadonlyFields();
+            $readonlyFields = $config->getReadonlyFields();
 
             foreach ($fieldCollection as $field)
             {
@@ -129,25 +119,14 @@ class FieldManager
 
     /**
      * @param \Bitrix\Crm\Field\Collection $fieldCollection
-     * @param \Vendor\Project\Dynamic\Service\Context|null $context
+     * @param \Vendor\Project\Dynamic\Internals\Contract\IEditorConfig|null $config
      * @return void
-     * @throws \Exception
      */
-    public function markHiddenFieldsByContext(Collection $fieldCollection, ?Context $context = null): void
+    public function markHiddenFieldsByConfig(Collection $fieldCollection, ?IEditorConfig $config = null): void
     {
-        if (!is_null($context))
+        if (!is_null($config))
         {
-            $context = Container::getInstance()->getContext();
-        }
-
-        $typeId       = Dynamic::getInstance()->getTypeId();
-        $contextItem  = $context->getItem();
-        $categoryCode = Dynamic::getInstance()->getCategoryCodeById($contextItem->getCategoryId());
-        $editorConfig = EditorConfig\Factory::getInstance($typeId, $this->entityTypeId)->createConfig($categoryCode);
-
-        if (!is_null($editorConfig))
-        {
-            $hiddenFields = $editorConfig->getHiddenFields();
+            $hiddenFields = $config->getHiddenFields();
 
             foreach ($fieldCollection as $field)
             {

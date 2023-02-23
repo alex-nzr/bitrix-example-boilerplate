@@ -30,6 +30,7 @@ export default class EntityDetailManager
 		this.enableCommunicationControls = options.enableCommunicationControls;
 		this.hideTimelineInCreationPage  = options.hideTimelineInCreationPage;
 		this.isStageFlowActive			 = options.isStageFlowActive;
+		this.reloadOnStageChange		 = options.reloadOnStageChange;
 
 		this.init();
 	}
@@ -109,10 +110,10 @@ export default class EntityDetailManager
 					section.saveScheme();
 				}
 
-				if (!this.showEmptySections)
+				const fields = section.getChildren();
+				if (fields.length <= 0)
 				{
-					const fields = section.getChildren();
-					if (fields.length <= 0)
+					if (!this.showEmptySections)
 					{
 						if(BX.type.isDomNode(section._wrapper))
 						{
@@ -120,30 +121,31 @@ export default class EntityDetailManager
 						}
 					}
 				}
-
-				/*fields.forEach(field => {
-                    prepareFieldParams(field);
-                });*/
+				else
+				{
+					fields.forEach(field => {
+						//this.prepareFieldParams(field);
+					});
+				}
 			})
 
-			/*BX.addCustomEvent('BX.UI.EntityEditorField:onLayout', (field) => {
-                prepareFieldParams(field);
+			BX.addCustomEvent('BX.UI.EntityEditorField:onLayout', (field) => {
+                //this.prepareFieldParams(field);
             });
 
-            function prepareFieldParams(field)
-            {
-                if(readonlyFields.includes(field._id))
-                {
-                    field._schemeElement._isEditable=false;
-                    field.saveScheme();
-
-                    const inputs = field._wrapper.querySelectorAll(`[name^='`+field._id+`'], [name^='`+field._id+`[]'], i.date.icon`);
-                    inputs.length && inputs.forEach(input => {
-                        input.setAttribute('disabled', true);
-                        input.onclick = () => false;
-                    });
-                }
-            }*/
+			BX.addCustomEvent('BX.Crm.ItemDetailsComponent:onStageChange', () => {
+				if(this.reloadOnStageChange)
+				{
+					if (BX.SidePanel?.Instance?.opened)
+					{
+						BX.SidePanel.Instance.reload();
+					}
+					else
+					{
+						window.location.reload();
+					}
+				}
+			});
 
 			//BX.Crm.EntityEditorColumn
 			//BX.Crm.EntityEditorSection
@@ -158,6 +160,25 @@ export default class EntityDetailManager
 			//    }
 			//};
 		});
+	}
+
+    /**
+     * @deprecated
+     * @param field
+     */
+	prepareFieldParams(field){
+		const readonlyFields = [];
+		if(readonlyFields.includes(field._id))
+		{
+			field._schemeElement._isEditable=false;
+			field.saveScheme();
+
+			const inputs = field._wrapper.querySelectorAll(`[name^='`+field._id+`'], [name^='`+field._id+`[]'], i.date.icon`);
+			inputs.length && inputs.forEach(input => {
+				input.setAttribute('disabled', true);
+				input.onclick = () => false;
+			});
+		}
 	}
 
 	addCssClasses() {
