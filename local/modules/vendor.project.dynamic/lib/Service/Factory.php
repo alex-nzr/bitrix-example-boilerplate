@@ -71,34 +71,28 @@ class Factory extends Dynamic
         if (!$this->editorAdapter)
         {
             $this->editorAdapter = new EditorAdapter($this->getFieldsCollection(), $this->getDependantFieldsMap());
+
+            $this->editorAdapter
+                ->setTypeId($this->getType()->getId())
+                ->setEntityTypeId($this->getEntityTypeId())
+                ->setCrmContext(Container::getInstance()->getContext());
+
             if ($this->isClientEnabled())
             {
-                $this->editorAdapter->addEntityField(
-                    EditorAdapter::getClientField(
-                        $this->getFieldCaption(EditorAdapter::FIELD_CLIENT),
-                        EditorAdapter::FIELD_CLIENT,
-                        EditorAdapter::FIELD_CLIENT_DATA_NAME,
-                        ['entityTypeId' => $this->getEntityTypeId()]
-                    )
-                );
+                $this->editorAdapter->addClientField($this->getFieldCaption(EditorAdapter::FIELD_CLIENT));
             }
             if ($this->isLinkWithProductsEnabled())
             {
-                $this->editorAdapter->addEntityField(
-                    EditorAdapter::getOpportunityField(
-                        $this->getFieldCaption(EditorAdapter::FIELD_OPPORTUNITY),
-                        EditorAdapter::FIELD_OPPORTUNITY,
-                        $this->isPaymentsEnabled()
-                    )
+                $this->editorAdapter->addOpportunityField(
+                    $this->getFieldCaption(EditorAdapter::FIELD_OPPORTUNITY),
+                    $this->isPaymentsEnabled()
                 );
-                $this->editorAdapter->addEntityField(
-                    EditorAdapter::getProductRowSummaryField(
-                        $this->getFieldCaption(EditorAdapter::FIELD_PRODUCT_ROW_SUMMARY)
-                    )
+                $this->editorAdapter->addProductRowSummaryField(
+                    $this->getFieldCaption(EditorAdapter::FIELD_PRODUCT_ROW_SUMMARY)
                 );
             }
         }
 
-        return parent::getEditorAdapter();
+        return $this->editorAdapter;
     }
 }
