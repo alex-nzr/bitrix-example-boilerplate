@@ -27,6 +27,8 @@ use Vendor\Project\Dynamic\Service\EntityEditor\FieldManager;
  */
 class EditorAdapter extends \Bitrix\Crm\Service\EditorAdapter
 {
+    public const FIELD_OPPORTUNITY = 'OPPORTUNITY_WITH_CURRENCY';
+
     protected static  ?Field\Collection $staticFieldsCollection = null;
     protected int     $entityTypeId;
     protected Context $crmContext;
@@ -60,6 +62,7 @@ class EditorAdapter extends \Bitrix\Crm\Service\EditorAdapter
         $editorConfig = EditorConfig\Factory::getInstance($this->typeId, $this->entityTypeId)->createConfig($categoryCode);
         $this->markReadonlyFields($editorConfig);
         $this->markHiddenFields($editorConfig);
+        $this->processAdditionalFields($editorConfig);
         EventManager::sendEntityDetailsContextReadyEvent();
         return parent::processByItem($item, $stages, $componentParameters);
     }
@@ -126,6 +129,18 @@ class EditorAdapter extends \Bitrix\Crm\Service\EditorAdapter
     {
         FieldManager::getInstance($this->entityTypeId)->markHiddenFieldsByConfig(
             $this->fieldsCollection,
+            $config
+        );
+    }
+
+    /**
+     * @param \Vendor\Project\Dynamic\Internals\Contract\IEditorConfig|null $config
+     * @return void
+     */
+    protected function processAdditionalFields(?IEditorConfig $config): void
+    {
+        $this->additionalFields = FieldManager::getInstance($this->entityTypeId)->markAdditionalFieldsByConfig(
+            $this->additionalFields,
             $config
         );
     }

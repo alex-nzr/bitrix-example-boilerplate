@@ -14,6 +14,7 @@ namespace Vendor\Project\Dynamic\Internals\EditorConfig\Scheme;
 use Bitrix\Crm\Item;
 use Vendor\Project\Dynamic\Internals\EditorConfig\BaseConfig;
 use Vendor\Project\Dynamic\Service\Container;
+use Vendor\Project\Dynamic\Service\EditorAdapter;
 
 /**
  * @class CategoryOneConfig
@@ -112,6 +113,7 @@ class CategoryOneConfig extends BaseConfig
             Item::FIELD_NAME_XML_ID,
             "UF_CRM_". $this->typeId ."_EXAMPLE_LIST",
             "UF_CRM_". $this->typeId ."_EXAMPLE_DATE",
+            EditorAdapter::FIELD_OPPORTUNITY,
         ];
     }
 

@@ -140,6 +140,25 @@ class FieldManager
         }
     }
 
+    /**
+     * Check only readonly attr, because required and hidden already works
+     * @param array $additionalFields
+     * @param \Vendor\Project\Dynamic\Internals\Contract\IEditorConfig|null $config
+     * @return array
+     */
+    public function markAdditionalFieldsByConfig(array $additionalFields, ?IEditorConfig $config): array
+    {
+        $preparedFields = $additionalFields;
+        foreach ($config->getReadonlyFields() as $readonlyField)
+        {
+            if (array_key_exists($readonlyField, $preparedFields) && is_array($preparedFields[$readonlyField]))
+            {
+                $preparedFields[$readonlyField]['editable'] = false;
+            }
+        }
+        return $preparedFields;
+    }
+
     private function __clone(){}
     public function __wakeup(){}
 }

@@ -63,7 +63,8 @@ class Factory extends Dynamic
     }
 
     /**
-     * @return \Vendor\Project\Dynamic\Service\EditorAdapter
+     * @return \Bitrix\Crm\Service\EditorAdapter
+     * @throws \Exception
      */
     public function getEditorAdapter(): \Bitrix\Crm\Service\EditorAdapter
     {
