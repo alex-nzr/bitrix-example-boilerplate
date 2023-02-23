@@ -40,7 +40,7 @@ class EditorAdapter extends \Bitrix\Crm\Service\EditorAdapter
     public function __construct(Field\Collection $fieldsCollection, array $dependantFieldsMap = [])
     {
         static::$staticFieldsCollection = $fieldsCollection;
-        $this->typeId = Dynamic::getInstance()->getEntityTypeId();
+        $this->typeId = Dynamic::getInstance()->getTypeId();
         $this->entityTypeId = Dynamic::getInstance()->getEntityTypeId();
         $this->crmContext   = Container::getInstance()->getContext();
         parent::__construct($fieldsCollection, $dependantFieldsMap);
