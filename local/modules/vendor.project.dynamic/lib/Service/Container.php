@@ -12,9 +12,10 @@
 namespace Vendor\Project\Dynamic\Service;
 
 use Bitrix\Main\DI\ServiceLocator;
-use Vendor\Project\Dynamic\Entity;
+use Vendor\Project\Dynamic\Config\Configuration;
 use Vendor\Project\Dynamic\Filter;
 use Vendor\Project\Dynamic\Service\Access\UserPermissions;
+use Vendor\Project\Dynamic\Service\Broker;
 
 /**
  * Class Container
@@ -57,7 +58,7 @@ class Container extends \Bitrix\Crm\Service\Container
      */
     public function getFactory(int $entityTypeId): ?\Bitrix\Crm\Service\Factory
     {
-        if ($entityTypeId === Entity\Dynamic::getInstance()->getEntityTypeId())
+        if ($entityTypeId === Configuration::getInstance()->getEntityTypeId())
         {
             $identifier = static::getIdentifierByClassName(Factory::class);
             if(!ServiceLocator::getInstance()->has($identifier))
@@ -136,6 +137,34 @@ class Container extends \Bitrix\Crm\Service\Container
         if(!ServiceLocator::getInstance()->has($identifier))
         {
             ServiceLocator::getInstance()->addInstance($identifier, new Context);
+        }
+        return ServiceLocator::getInstance()->get($identifier);
+    }
+
+    /**
+     * @return \Vendor\Project\Dynamic\Service\Broker\UserField
+     * @throws \Exception
+     */
+    public function getUserFieldBroker(): Broker\UserField
+    {
+        $identifier = static::getIdentifierByClassName(Broker\UserField::class);
+        if(!ServiceLocator::getInstance()->has($identifier))
+        {
+            ServiceLocator::getInstance()->addInstance($identifier, new Broker\UserField);
+        }
+        return ServiceLocator::getInstance()->get($identifier);
+    }
+
+    /**
+     * @return \Vendor\Project\Dynamic\Service\Broker\Category
+     * @throws \Exception
+     */
+    public function getCategoryBroker(): Broker\Category
+    {
+        $identifier = static::getIdentifierByClassName(Broker\Category::class);
+        if(!ServiceLocator::getInstance()->has($identifier))
+        {
+            ServiceLocator::getInstance()->addInstance($identifier, new Broker\Category);
         }
         return ServiceLocator::getInstance()->get($identifier);
     }

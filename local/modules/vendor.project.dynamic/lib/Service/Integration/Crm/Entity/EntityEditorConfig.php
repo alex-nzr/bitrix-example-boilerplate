@@ -60,7 +60,7 @@ class EntityEditorConfig extends \Bitrix\Crm\Entity\EntityEditorConfig
         $result = new Result();
         try
         {
-            $typeId = Configuration::getInstance()->getTypeIdFromOption();
+            $typeId = Configuration::getInstance()->getTypeId();
             if ($typeId <= 0)
             {
                 throw new Exception('Error in '.__METHOD__.': typeId must be greater than 0');

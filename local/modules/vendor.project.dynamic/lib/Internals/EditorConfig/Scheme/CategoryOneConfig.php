@@ -13,6 +13,7 @@ namespace Vendor\Project\Dynamic\Internals\EditorConfig\Scheme;
 
 use Bitrix\Crm\Item;
 use Vendor\Project\Dynamic\Internals\EditorConfig\BaseConfig;
+use Vendor\Project\Dynamic\Item\Dynamic;
 use Vendor\Project\Dynamic\Service\Container;
 use Vendor\Project\Dynamic\Service\EditorAdapter;
 
@@ -24,6 +25,7 @@ class CategoryOneConfig extends BaseConfig
 {
     /**
      * @return array
+     * @throws \Exception
      */
     protected function getConfigScheme(): array
     {
@@ -70,7 +72,7 @@ class CategoryOneConfig extends BaseConfig
                 'type' => "section",
                 'elements' => [
                     [
-                        'name' => "UF_CRM_". $this->typeId ."_EXAMPLE_STRING",
+                        'name' => $this->ufBroker->getUfNameByCode(Dynamic::UF_CODE_EXAMPLE_STRING),
                         'optionFlags' => '1'
                     ],
                 ]
@@ -81,11 +83,11 @@ class CategoryOneConfig extends BaseConfig
                 'type' => "section",
                 'elements' => [
                     [
-                        'name' => "UF_CRM_". $this->typeId ."_EXAMPLE_LIST",
+                        'name' => $this->ufBroker->getUfNameByCode(Dynamic::UF_CODE_EXAMPLE_LIST),
                         'optionFlags' => '1'
                     ],
                     [
-                        'name' => "UF_CRM_". $this->typeId ."_EXAMPLE_DATE",
+                        'name' => $this->ufBroker->getUfNameByCode(Dynamic::UF_CODE_EXAMPLE_DATE),
                         'optionFlags' => '1'
                     ],
                 ]
@@ -95,24 +97,26 @@ class CategoryOneConfig extends BaseConfig
 
     /**
      * @return array
+     * @throws \Exception
      */
     public function getRequiredFields(): array
     {
         return [
             Item::FIELD_NAME_TITLE,
-            "UF_CRM_". $this->typeId ."_EXAMPLE_STRING"
+            $this->ufBroker->getUfNameByCode(Dynamic::UF_CODE_EXAMPLE_STRING)
         ];
     }
 
     /**
      * @return array
+     * @throws \Exception
      */
     public function getReadonlyFields(): array
     {
         return [
             Item::FIELD_NAME_XML_ID,
-            "UF_CRM_". $this->typeId ."_EXAMPLE_LIST",
-            "UF_CRM_". $this->typeId ."_EXAMPLE_DATE",
+            $this->ufBroker->getUfNameByCode(Dynamic::UF_CODE_EXAMPLE_LIST),
+            $this->ufBroker->getUfNameByCode(Dynamic::UF_CODE_EXAMPLE_DATE),
             EditorAdapter::FIELD_OPPORTUNITY,
         ];
     }

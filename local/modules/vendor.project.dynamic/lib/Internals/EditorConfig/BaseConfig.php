@@ -12,6 +12,7 @@
 namespace Vendor\Project\Dynamic\Internals\EditorConfig;
 
 use Vendor\Project\Dynamic\Internals\Contract\IEditorConfig;
+use Vendor\Project\Dynamic\Service\Broker;
 use Vendor\Project\Dynamic\Service\Container;
 
 /**
@@ -22,6 +23,7 @@ abstract class BaseConfig implements IEditorConfig
 {
     protected array $entityFields;
     protected int   $typeId;
+    protected Broker\UserField $ufBroker;
 
     /**
      * @param int $typeId
@@ -32,6 +34,7 @@ abstract class BaseConfig implements IEditorConfig
     {
         $this->typeId       = $typeId;
         $this->entityFields = Container::getInstance()->getFactory($entityTypeId)->getFieldsCollection()->toArray();
+        $this->ufBroker     = Container::getInstance()->getUserFieldBroker();
     }
 
     /**

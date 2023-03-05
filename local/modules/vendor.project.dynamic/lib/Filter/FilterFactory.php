@@ -16,8 +16,8 @@ use Bitrix\Crm\Filter\Filter as CrmFilter;
 use Bitrix\Crm\Filter\ItemSettings;
 use Bitrix\Main\Filter\DataProvider;
 use Bitrix\Main\Filter\EntitySettings;
+use Vendor\Project\Dynamic\Config\Configuration;
 use Vendor\Project\Dynamic\Service\Container;
-use Vendor\Project\Dynamic\Entity;
 
 /**
  * Class FilterFactory
@@ -35,8 +35,8 @@ class FilterFactory extends Factory
         if ($settings instanceof ItemSettings)
         {
             $entityTypeId = $settings->getType()->getEntityTypeId();
-            $tenderEntityTypeId = Entity\Dynamic::getInstance()->getEntityTypeId();
-            if ($entityTypeId === $tenderEntityTypeId)
+            $selfEntityTypeId = Configuration::getInstance()->getEntityTypeId();
+            if ($entityTypeId === $selfEntityTypeId)
             {
                 $factory = Container::getInstance()->getFactory($entityTypeId);
                 if ($factory)
@@ -59,8 +59,8 @@ class FilterFactory extends Factory
         if ($settings instanceof ItemSettings)
         {
             $entityTypeId = $settings->getType()->getEntityTypeId();
-            $tenderEntityTypeId = Entity\Dynamic::getInstance()->getEntityTypeId();
-            if ($entityTypeId === $tenderEntityTypeId)
+            $selfEntityTypeId = Configuration::getInstance()->getEntityTypeId();
+            if ($entityTypeId === $selfEntityTypeId)
             {
                 return new ItemUfDataProvider($settings);
             }

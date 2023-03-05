@@ -10,18 +10,18 @@
  * ==================================================
  */
 
-namespace Vendor\Project\Basic\Handler;
+namespace Vendor\Project\Basic\EventHandler;
 
 /**
- * Class Main
- * @package Vendor\Project\Basic\Handler
+ * @class Main
+ * @package Vendor\Project\Basic\EventHandler
  */
 class Main
 {
     /**
      * @return void
      */
-    public static function onPageStartHandler()
+    public static function onPageStartHandler(): void
     {
         //some logic
     }

@@ -16,8 +16,8 @@ use Bitrix\Intranet\CustomSection\Entity\CustomSectionPageTable;
 use Bitrix\Intranet\CustomSection\Entity\CustomSectionTable;
 use Bitrix\Main\Context;
 use Bitrix\Main\HttpRequest;
+use Vendor\Project\Dynamic\Config\Configuration;
 use Vendor\Project\Dynamic\Config\Constants;
-use Vendor\Project\Dynamic\Entity;
 use Vendor\Project\Dynamic\Internals\Control\ServiceManager;
 
 /**
@@ -35,7 +35,7 @@ class Router extends \Bitrix\Crm\Service\Router
      */
     public function __construct()
     {
-        $this->entityTypeId = Entity\Dynamic::getInstance()->getEntityTypeId();
+        $this->entityTypeId = Configuration::getInstance()->getEntityTypeId();
         parent::__construct();
     }
 

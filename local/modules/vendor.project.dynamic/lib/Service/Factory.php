@@ -11,19 +11,25 @@
  */
 namespace Vendor\Project\Dynamic\Service;
 
-use Bitrix\Crm\Item;
+use Bitrix\Crm\Item as BaseItem;
 use Bitrix\Crm\Model\Dynamic\Type;
 use Bitrix\Crm\Service\Context;
-use Bitrix\Crm\Service\Factory\Dynamic;
+use Bitrix\Crm\Service\Factory\Dynamic as DynamicFactory;
 use Bitrix\Crm\Service\Operation;
-use CCrmFieldInfoAttr;
+use Bitrix\Main\Result;
+use Vendor\Project\Dynamic\Item;
+use Vendor\Project\Dynamic\Service\Operation\Action\BeforeAdd;
+use Vendor\Project\Dynamic\Service\Operation\Action\BeforeDelete;
+use Vendor\Project\Dynamic\Service\Operation\Action\BeforeUpdate;
 
 /**
  * Class Factory
  * @package Vendor\Project\Dynamic\Service
  */
-class Factory extends Dynamic
+class Factory extends DynamicFactory
 {
+    protected $itemClassName = Item\Dynamic::class;
+
     /**
      * @param \Bitrix\Crm\Model\Dynamic\Type $type
      */
@@ -33,33 +39,92 @@ class Factory extends Dynamic
     }
 
     /**
+     * @param array $fields
+     * @return \Bitrix\Main\Result
+     * @throws \Exception
+     */
+    public function add(array $fields): Result
+    {
+        $item = $this->createItem();
+
+        foreach ($fields as $field => $value) {
+            $item->set($field, $value);
+        }
+
+        $saveOperation = $this->getAddOperation($item);
+        $res = $saveOperation->launch();
+        if ($res->isSuccess())
+        {
+            $res->setData(['ID' => $item->getId()]);
+        }
+        return $res;
+    }
+
+    /**
+     * @param \Bitrix\Crm\Item $item
+     * @param array $fields
+     * @return \Bitrix\Main\Result
+     * @throws \Exception
+     */
+    public function update(BaseItem $item, array $fields): Result
+    {
+        foreach ($fields as $field => $value) {
+            $item->set($field, $value);
+        }
+        $updateOperation = $this->getUpdateOperation($item);
+        $res = $updateOperation->launch();
+        if ($res->isSuccess())
+        {
+            $res->setData(['ID' => $item->getId()]);
+        }
+        return $res;
+    }
+
+    /**
+     * @param \Bitrix\Crm\Item $item
+     * @return \Bitrix\Main\Result
+     * @throws \Exception
+     */
+    public function delete(BaseItem $item): Result
+    {
+        $deleteOperation = $this->getDeleteOperation($item);
+        return $deleteOperation->launch();
+    }
+
+    /**
      * @param \Bitrix\Crm\Item $item
      * @param \Bitrix\Crm\Service\Context|null $context
      * @return \Bitrix\Crm\Service\Operation\Add
+     * @throws \Exception
      */
-    public function getAddOperation(Item $item, Context $context = null): Operation\Add
+    public function getAddOperation(BaseItem $item, Context $context = null): Operation\Add
     {
-        return parent::getAddOperation($item, $context);
+        return parent::getAddOperation($item, $context)
+            ->addAction(Operation::ACTION_BEFORE_SAVE, new BeforeAdd());
     }
 
     /**
      * @param \Bitrix\Crm\Item $item
      * @param \Bitrix\Crm\Service\Context|null $context
      * @return \Bitrix\Crm\Service\Operation\Update
+     * @throws \Exception
      */
-    public function getUpdateOperation(Item $item, Context $context = null): Operation\Update
+    public function getUpdateOperation(BaseItem $item, Context $context = null): Operation\Update
     {
-        return parent::getUpdateOperation($item, $context);
+        return parent::getUpdateOperation($item, $context)
+            ->addAction(Operation::ACTION_BEFORE_SAVE, new BeforeUpdate());
     }
 
     /**
      * @param \Bitrix\Crm\Item $item
      * @param \Bitrix\Crm\Service\Context|null $context
      * @return \Bitrix\Crm\Service\Operation\Delete
+     * @throws \Exception
      */
-    public function getDeleteOperation(Item $item, Context $context = null): Operation\Delete
+    public function getDeleteOperation(BaseItem $item, Context $context = null): Operation\Delete
     {
-        return parent::getDeleteOperation($item, $context);
+        return parent::getDeleteOperation($item, $context)
+            ->addAction(Operation::ACTION_BEFORE_SAVE, new BeforeDelete());
     }
 
     /**

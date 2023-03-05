@@ -39,7 +39,7 @@ class Installer
     /**
      * @throws \Exception
      */
-    public static function uninstallModule()
+    public static function uninstallModule(): void
     {
         DBTableInstaller::uninstall();
     }

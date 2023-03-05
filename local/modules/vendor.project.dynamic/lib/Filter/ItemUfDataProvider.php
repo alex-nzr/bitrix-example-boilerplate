@@ -13,7 +13,7 @@ namespace Vendor\Project\Dynamic\Filter;
 
 use Bitrix\Crm\Filter\ItemSettings;
 use Bitrix\Crm\Filter\ItemUfDataProvider as CrmItemUfDataProvider;
-use Vendor\Project\Dynamic\Entity;
+use Vendor\Project\Dynamic\Config\Configuration;
 
 /**
  * Class ItemUfDataProvider
@@ -30,7 +30,7 @@ class ItemUfDataProvider extends CrmItemUfDataProvider
      */
     public function __construct(ItemSettings $settings)
     {
-        $this->typeId = Entity\Dynamic::getInstance()->getTypeId();
+        $this->typeId = Configuration::getInstance()->getTypeId();
         parent::__construct($settings);
     }
 

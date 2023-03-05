@@ -10,7 +10,7 @@
  * ==================================================
  */
 
-use Vendor\Project\Dynamic\Entity\Dynamic;
+use Vendor\Project\Dynamic\Config\Configuration;
 use Vendor\Project\Dynamic\Internals\Control\ServiceManager;
 use Vendor\Project\Dynamic\Service\Container;
 
@@ -23,7 +23,7 @@ try
 {
     $settings = [
         'moduleId' => ServiceManager::getModuleId(),
-        'typeId'   => Dynamic::getInstance()->getTypeId(),
+        'typeId'   => Configuration::getInstance()->getTypeId(),
         'isAdmin'  => Container::getInstance()->getContext()->isCurrentUserAdmin()
     ];
 

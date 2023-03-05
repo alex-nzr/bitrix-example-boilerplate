@@ -11,7 +11,6 @@
  */
 namespace Vendor\Project\Dynamic\Internals\Installation;
 
-use Bitrix\Main\Config\Option;
 use Bitrix\Main\Error;
 use Bitrix\Main\Result;
 use Bitrix\Main\Type\Date;
@@ -19,9 +18,10 @@ use Exception;
 use Vendor\Project\Dynamic\Config\Configuration;
 use Vendor\Project\Dynamic\Config\Constants;
 use Vendor\Project\Dynamic\Helper;
-use Vendor\Project\Dynamic\Internals\Control\ServiceManager;
 use CUserFieldEnum;
 use CUserTypeEntity;
+use Vendor\Project\Dynamic\Item\Dynamic;
+use Vendor\Project\Dynamic\Service\Container;
 
 /**
  * Class UserFieldInstaller
@@ -54,7 +54,9 @@ class UserFieldInstaller
                 {
                     if ($userField['USER_TYPE_ID'] === 'enumeration' && is_array($userField['LIST']))
                     {
-                        $currentXmlIds = Helper\Main\UserField::getUfListXmlIdsByFieldId((int)$arField['ID']);
+                        $currentXmlIds = Container::getInstance()
+                                            ->getUserFieldBroker()
+                                            ->getUfListXmlIdsByFieldId((int)$arField['ID']);
 
                         foreach ($userField['LIST'] as $key => $valueAr)
                         {
@@ -145,7 +147,7 @@ class UserFieldInstaller
         $userFields = static::getUserFieldsDescription();
         $preparedUserFields = [];
 
-        $typeId        = Configuration::getInstance()->getTypeIdFromOption();
+        $typeId = Configuration::getInstance()->getTypeId();
         if ($typeId <= 0)
         {
             throw new Exception('Error in '.__METHOD__.': typeId must be greater than 0');
@@ -153,12 +155,13 @@ class UserFieldInstaller
 
         $entityIdForUf = 'CRM_' . $typeId;
         $ufPrefix      = 'UF_CRM_' . $typeId . '_';
+        $xmlIdPrefix   = Constants::UF_XML_ID_PREFIX;
 
-        foreach ($userFields as $key => $userField) {
-
+        foreach ($userFields as $key => $userField)
+        {
             $userField['ENTITY_ID']     = $entityIdForUf;
+            $userField['XML_ID']        = $xmlIdPrefix . $userField['FIELD_NAME'];
             $userField['FIELD_NAME']    = $ufPrefix . $userField['FIELD_NAME'];
-            $userField['XML_ID']        = $userField['FIELD_NAME'];
             $userField['SORT']          = $key > 0 ? $key * 10 : 10;
             $userField['SHOW_IN_LIST']  = 'N';//($userField['HIDDEN'] === 'Y') ? 'N' : 'Y';
             $userField['IS_SEARCHABLE'] = 'Y';
@@ -205,7 +208,7 @@ class UserFieldInstaller
             [
                 'TITLE_RU'     => 'String field',
                 'TITLE_EN'     => 'String field',
-                'FIELD_NAME'   => 'EXAMPLE_STRING',
+                'FIELD_NAME'   => Dynamic::UF_CODE_EXAMPLE_STRING,
                 'USER_TYPE_ID' => 'string_formatted',
                 'MULTIPLE'     => 'N',
                 'MANDATORY'    => 'N',
@@ -217,7 +220,7 @@ class UserFieldInstaller
             [
                 'TITLE_RU'     => 'Example list',
                 'TITLE_EN'     => "Example list",
-                'FIELD_NAME'   => 'EXAMPLE_LIST',
+                'FIELD_NAME'   => Dynamic::UF_CODE_EXAMPLE_LIST,
                 'USER_TYPE_ID' => 'enumeration',
                 'MULTIPLE'     => 'N',
                 'MANDATORY'    => 'N',
@@ -228,16 +231,16 @@ class UserFieldInstaller
                     'SHOW_NO_VALUE'    => 'Y',
                 ],
                 'LIST'         => [
-                    //'xmlId1' => 'Value 1', //test deleting
+                    'xmlId1' => 'Value 1',
                     'xmlId2' => 'Value 2',
-                    'xmlId3' => 'Value 3 - changed',
+                    'xmlId3' => 'Value 3',
                     'xmlId4' => 'Value 4',
                 ]
             ],
             [
                 'TITLE_RU'     => 'Example date',
                 'TITLE_EN'     => 'Example date',
-                'FIELD_NAME'   => 'EXAMPLE_DATE',
+                'FIELD_NAME'   => Dynamic::UF_CODE_EXAMPLE_DATE,
                 'USER_TYPE_ID' => 'date',
                 'MULTIPLE'     => 'N',
                 'MANDATORY'    => 'N',
@@ -260,7 +263,7 @@ class UserFieldInstaller
         $counter = 0;
         foreach ($values as $xmlId => $value)
         {
-            if (empty($xmlId) || (intval($xmlId) === $counter))
+            if (empty($xmlId) || (!is_string($xmlId) && ($xmlId === $counter)))
             {
                 $xmlId = $fieldName.'_'.$counter;
             }

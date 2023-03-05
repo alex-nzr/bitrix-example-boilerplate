@@ -1,5 +1,5 @@
 /**general*********************************************************/
-.ui-element-hidden{
+.ui-element-hidden:not(.ui-entity-editor-section-edit){
     display: none!important;
 }
 .ui-element-disabled{

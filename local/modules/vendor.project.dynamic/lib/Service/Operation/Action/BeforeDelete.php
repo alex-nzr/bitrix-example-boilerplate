@@ -5,10 +5,12 @@
  * E-mail: jc1988x@gmail.com
  * Copyright (c) 2019 - 2023
  * ==================================================
- * gpnsm - BeforeAdd.php
- * 19.02.2023 01:46
+ * gpnsm - BeforeDelete.php
+ * 03.03.2023 22:49
  * ==================================================
  */
+
+
 namespace Vendor\Project\Dynamic\Service\Operation\Action;
 
 use Bitrix\Crm\Item;
@@ -16,10 +18,10 @@ use Bitrix\Crm\Service\Operation\Action;
 use Bitrix\Main\Result;
 
 /**
- * @class BeforeAdd
+ * @class BeforeDelete
  * @package Vendor\Project\Dynamic\Service\Operation\Action
  */
-class BeforeAdd extends Action
+class BeforeDelete extends Action
 {
     /**
      * @param \Bitrix\Crm\Item $item

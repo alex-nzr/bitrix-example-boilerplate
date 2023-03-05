@@ -13,14 +13,14 @@
 
 namespace Vendor\Project\Dynamic\Internals\Control;
 
-use Bitrix\Main\Config\Configuration;
+use Bitrix\Main\Config\Configuration as BxConfig;
 use Bitrix\Main\Context;
 use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Request;
 use Bitrix\Main\UI\Extension;
+use Vendor\Project\Dynamic\Config\Configuration;
 use Vendor\Project\Dynamic\Controller;
-use Vendor\Project\Dynamic\Entity;
 use Vendor\Project\Dynamic\Service\Container;
 use Vendor\Project\Dynamic\Service\Integration\Intranet\CustomSectionProvider;
 use Exception;
@@ -129,7 +129,7 @@ class ServiceManager
      */
     private function addCustomSectionProvider(): void
     {
-        $crmConfig = Configuration::getInstance('crm');
+        $crmConfig = BxConfig::getInstance('crm');
         $customSectionConfig = $crmConfig->get('intranet.customSection');
         if (is_array($customSectionConfig))
         {
@@ -208,7 +208,7 @@ class ServiceManager
                 return;
             }
 
-            $entityTypeId = Entity\Dynamic::getInstance()->getEntityTypeId();
+            $entityTypeId = Configuration::getInstance()->getEntityTypeId();
 
             if ($request->isAjaxRequest())
             {
@@ -242,8 +242,8 @@ class ServiceManager
     private function findDynamicSignsInRequest(Request $request): bool
     {
         $params       = $request->getValues();
-        $typeId       = Entity\Dynamic::getInstance()->getTypeId();
-        $entityTypeId = Entity\Dynamic::getInstance()->getEntityTypeId();
+        $typeId       = Configuration::getInstance()->getTypeId();
+        $entityTypeId = Configuration::getInstance()->getEntityTypeId();
 
         if (is_string($params['FORM']) &&
             (

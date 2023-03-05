@@ -354,7 +354,7 @@ class TypeInstaller
             "CUSTOM_SECTIONS" => [
                 [
                     "ID"          => $customSectionId,
-                    "TITLE"       => Loc::getMessage(ServiceManager::getModuleId()."_CUSTOM_SECTION_TITLE"),
+                    "TITLE"       => Constants::DYNAMIC_TYPE_CUSTOM_SECTION_TITLE,
                     "IS_SELECTED" => false,
                 ]
             ],
@@ -376,7 +376,7 @@ class TypeInstaller
      * @param int|null $entityTypeId
      * @param array $fields
      */
-    protected static function saveConversionMap(?int $entityTypeId, array $fields)
+    protected static function saveConversionMap(?int $entityTypeId, array $fields): void
     {
     }
 }

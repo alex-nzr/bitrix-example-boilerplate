@@ -27,10 +27,12 @@ export default class EntityDetailManager
 		this.enableCategorySelector   	 = options.enableCategorySelector;
 
 		//кнопка смены/сохранения общего и перснонального конфига карточки
+		//кнопки выбора полей секции, удаления секции, возможность создавать секции
 		this.cardConfigEditable 	 	 = options.cardConfigEditable;
 
-		//создание новый секций
-		this.enableSectionCreation 	 	 = options.enableSectionCreation;
+		//создание новый секций (требует включенной предыдущей опции)
+		//создание секций в режиме создания элемента запрещено, так как иначе сложности со скрытием пустых секций
+		this.enableSectionCreation 	 	 = options.enableSectionCreation && !this.isNew;
 
 		//редактирование названия секции
 		this.enableSectionEdit 		 	 = options.enableSectionEdit;
@@ -39,6 +41,9 @@ export default class EntityDetailManager
 		this.enableFieldsContextMenu 	 = options.enableFieldsContextMenu;
 
 		//кнопка изменить и перевод секции в режим редактирования
+		//ВАЖНО: если отключить эту опцию, но включить this.enableSectionCreation,
+		// то новые секции будут создаваться не в режиме редактирования и сразу будут скрытыми
+		//поэтому для корректной работы лучше при включенной this.enableSectionCreation включать и this.enableSectionEditMode
 		this.enableSectionEditMode 	 	 = options.enableSectionEditMode;
 
 		//скрывать секцию если в ней нет видимых полей. Если поле скрыто, потому что нет значения, то секция останется
@@ -76,25 +81,22 @@ export default class EntityDetailManager
 					editor._enableCommunicationControls = false;
 				}
 
-				if (!this.cardConfigEditable)
-				{
-					if (editor._config)
-					{
-						editor._enableConfigControl = false;
-						editor._config._canUpdateCommonConfiguration = false;
-						editor._config._canUpdatePersonalConfiguration = false;
-						editor._config._enableScopeToggle = false;
-					}
-				}
-
 				if (!this.enableSectionCreation)
 				{
 					editor._enableSectionCreation = false;
 				}
 
-				if (!this.cardConfigEditable && !this.enableSectionCreation)
+				if (!this.cardConfigEditable)
 				{
 					editor._enableBottomPanel = false;
+					editor._enableConfigControl = false;
+					editor._enableSectionCreation = false;
+					if (editor._config)
+					{
+						editor._config._canUpdateCommonConfiguration = false;
+						editor._config._canUpdatePersonalConfiguration = false;
+						editor._config._enableScopeToggle = false;
+					}
 				}
 
 				if (!this.enableSectionEdit)
@@ -122,18 +124,15 @@ export default class EntityDetailManager
 			});
 
 			BX.addCustomEvent('BX.Crm.EntityEditorSection:onLayout', (section) => {
-				if (section.getMode() === BX.UI.EntityEditorMode.edit)
-				{
-					//section.toggleMode();
-				}
-
 				if (!this.enableSectionEditMode)
 				{
-					BX.type.isDomNode(section._titleActions) ? section._titleActions.remove() : void(0);
-
-					section._schemeElement._isEditable = false;
-					section.saveScheme();
+					section.getSchemeElement().setDataParam('enableToggling', false);
 				}
+
+				//section.getSchemeElement().setDataParam('isRemovable', false);//запрет удаления секции
+				//section.getSchemeElement().setDataParam('isChangeable', false);//запрет выбора полей
+
+				section.saveScheme();
 
 				const fields = section.getChildren();
 				if (fields.length <= 0)
@@ -143,20 +142,16 @@ export default class EntityDetailManager
 						if(BX.type.isDomNode(section._wrapper))
 						{
 							section._wrapper.classList.add('ui-element-hidden');
+							if (this.isNew)
+							{
+								//for hide empty sections while new item creation running
+								section._wrapper.classList.remove('ui-entity-editor-section-edit');
+							}
+
 						}
 					}
 				}
-				else
-				{
-					fields.forEach(field => {
-						//this.prepareFieldParams(field);
-					});
-				}
 			})
-
-			BX.addCustomEvent('BX.UI.EntityEditorField:onLayout', (field) => {
-                //this.prepareFieldParams(field);
-            });
 
 			BX.addCustomEvent('BX.Crm.ItemDetailsComponent:onStageChange', () => {
 				if(this.reloadOnStageChange)
@@ -171,39 +166,7 @@ export default class EntityDetailManager
 					}
 				}
 			});
-
-			//BX.Crm.EntityEditorColumn
-			//BX.Crm.EntityEditorSection
-			//BX.Crm.EntityEditor.getDefault()._enableModeToggle = false;
-			//BX.UI.EntityEditorMode = {
-			//    "intermediate": 0,
-			//    "edit": 1,
-			//    "view": 2,
-			//    "names": {
-			//        "view": "view",
-			//        "edit": "edit"
-			//    }
-			//};
 		});
-	}
-
-    /**
-     * @deprecated
-     * @param field
-     */
-	prepareFieldParams(field){
-		/*const readonlyFields = [];
-		if(readonlyFields.includes(field._id))
-		{
-			field._schemeElement._isEditable=false;
-			field.saveScheme();
-
-			const inputs = field._wrapper.querySelectorAll(`[name^='`+field._id+`'], [name^='`+field._id+`[]'], i.date.icon`);
-			inputs.length && inputs.forEach(input => {
-				input.setAttribute('disabled', true);
-				input.onclick = () => false;
-			});
-		}*/
 	}
 
 	addCssClasses() {

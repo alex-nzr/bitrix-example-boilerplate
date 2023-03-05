@@ -12,7 +12,7 @@
 namespace Vendor\Project\Basic\Internals\Control;
 
 use Bitrix\Main\EventManager as BitrixEventManager;
-use Vendor\Project\Basic\Handler;
+use Vendor\Project\Basic\EventHandler;
 
 /**
  * Class EventManager
@@ -20,17 +20,28 @@ use Vendor\Project\Basic\Handler;
  */
 class EventManager
 {
-    public static function addBasicEventHandlers()
+    /**
+     * @return void
+     */
+    public static function addBasicEventHandlers(): void
     {
         static::addEventHandlersFromArray(static::getBasicEvents(), true);
     }
 
-    public static function addRuntimeEventHandlers()
+    /**
+     * @return void
+     */
+    public static function addRuntimeEventHandlers(): void
     {
         static::addEventHandlersFromArray(static::getRunTimeEvents());
     }
 
-    private static function addEventHandlersFromArray(array $events, bool $register = false)
+    /**
+     * @param array $events
+     * @param bool $register
+     * @return void
+     */
+    private static function addEventHandlersFromArray(array $events, bool $register = false): void
     {
         foreach ($events as $moduleId => $event)
         {
@@ -64,7 +75,10 @@ class EventManager
         }
     }
 
-    public static function removeBasicEventHandlers()
+    /**
+     * @return void
+     */
+    public static function removeBasicEventHandlers(): void
     {
         foreach (static::getBasicEvents() as $moduleId => $event)
         {
@@ -111,7 +125,7 @@ class EventManager
             'main' => [
                 'onPageStart' => [
                     [
-                        'class'  => Handler\Main::class,
+                        'class'  => EventHandler\Main::class,
                         'method' => 'onPageStartHandler',
                         'sort'   => 400
                     ],

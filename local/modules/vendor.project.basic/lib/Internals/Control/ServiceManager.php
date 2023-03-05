@@ -41,7 +41,7 @@ class ServiceManager
     /**
      * @throws \Exception
      */
-    public function includeModule()
+    public function includeModule(): void
     {
         $this->includeControllers();
         $this->includeDependentModules();
@@ -82,49 +82,37 @@ class ServiceManager
      */
     private function includeDependentExtensions(): void
     {
-        $dependencies = [
+        Extension::load([
             'ui'
-        ];
-
-        foreach ($dependencies as $dependency) {
-            Extension::load($dependency);
-        }
+        ]);
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public static function getModuleId(): string
+    public static function getModuleId(): ?string
     {
         if (empty(static::$moduleId))
         {
             $arr = explode(DIRECTORY_SEPARATOR, __FILE__);
             $i = array_search("modules", $arr);
-            static::$moduleId = (string)$arr[$i + 1];
+            static::$moduleId = $arr[$i + 1];
         }
         return static::$moduleId;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public static function getModuleParentDirectoryName(): string
+    public static function getModuleParentDirectoryName(): ?string
     {
         if (empty(static::$moduleParentDirectoryName))
         {
             $arr = explode(DIRECTORY_SEPARATOR, __FILE__);
             $i = array_search("modules", $arr);
-            static::$moduleParentDirectoryName = (string)$arr[$i - 1];
+            static::$moduleParentDirectoryName = $arr[$i - 1];
         }
         return static::$moduleParentDirectoryName;
-    }
-
-    /**
-     * @return string
-     */
-    public function getCurPage(): string
-    {
-        return (string)Context::getCurrent()->getRequest()->getRequestedPage();
     }
 
     private function __clone(){}

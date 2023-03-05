@@ -15,7 +15,6 @@ use Bitrix\Crm\EO_Status_Collection;
 use Bitrix\Crm\Field;
 use Bitrix\Crm\Item;
 use CCrmFieldInfoAttr;
-use Vendor\Project\Dynamic\Entity\Dynamic;
 use Vendor\Project\Dynamic\Internals\Contract\IEditorConfig;
 use Vendor\Project\Dynamic\Internals\Control\EventManager;
 use Vendor\Project\Dynamic\Internals\EditorConfig;
@@ -88,7 +87,7 @@ class EditorAdapter extends \Bitrix\Crm\Service\EditorAdapter
     public function processByItem(Item $item, EO_Status_Collection $stages, array $componentParameters = []): EditorAdapter
     {
         $this->crmContext->setItem($item);
-        $categoryCode = Dynamic::getInstance()->getCategoryCodeById($item->getCategoryId());
+        $categoryCode = Container::getInstance()->getCategoryBroker()->getCategoryCodeById($item->getCategoryId());
         $editorConfig = EditorConfig\Factory::getInstance($this->typeId, $this->entityTypeId)->createConfig($categoryCode);
         $this->markReadonlyFields($editorConfig);
         $this->markHiddenFields($editorConfig);

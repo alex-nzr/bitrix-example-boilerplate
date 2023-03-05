@@ -86,12 +86,6 @@ class OptionManager{
                     ],
                     [ 'note' => 'Some note in option page'],
                 ]
-            ],
-            [
-                'DIV'   => "access_tab",
-                'TAB'   => Loc::getMessage($this->moduleId."_TAB_RIGHTS"),
-                'ICON'  => '',
-                'TITLE' => Loc::getMessage($this->moduleId."_TAB_TITLE_RIGHTS"),
             ]
         ];
     }
@@ -256,6 +250,9 @@ class OptionManager{
                 case "password":
                     $autocomplete = $type[0] === 'password' ? 'autocomplete="new-password"' : '';
                     echo "<input type='$type[0]' id='$name' name='$name' value='$val' size='$type[1]' maxlength='255' $autocomplete>";
+                    break;
+                case "number":
+                    echo "<input type='number' id='$name' name='$name' value='$val' size='$type[1]' min='-999999999' max='999999999'>";
                     break;
                 case "select":
                     $arr = is_array($type[1]) ? $type[1] : [];

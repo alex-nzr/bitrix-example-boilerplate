@@ -17,7 +17,7 @@ use Vendor\Project\Basic\Internals\Control\ServiceManager;
  * Class Configuration
  * @package Vendor\Project\Basic\Config
  */
-class Configuration
+final class Configuration
 {
     private static ?Configuration $instance = null;
 
@@ -28,11 +28,11 @@ class Configuration
      */
     public static function getInstance(): Configuration
     {
-        if (static::$instance === null)
+        if (Configuration::$instance === null)
         {
-            static::$instance = new static();
+            Configuration::$instance = new Configuration();
         }
-        return static::$instance;
+        return Configuration::$instance;
     }
 
     /**

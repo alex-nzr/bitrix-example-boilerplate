@@ -22,6 +22,7 @@ class Constants
     const DYNAMIC_TYPE_TITLE                = 'Example smart';
     const DYNAMIC_TYPE_CUSTOM_SECTION_CODE  = 'example';
     const DYNAMIC_TYPE_CUSTOM_SECTION_TITLE = 'Example section';
+    const UF_XML_ID_PREFIX                  = 'D_EXAMPLE_UF_';
 
     const CUSTOM_PAGE_LIST    = 'list';
     const CUSTOM_PAGE_EXAMPLE = 'somePage';
