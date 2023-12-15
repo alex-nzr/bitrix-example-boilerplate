@@ -174,15 +174,13 @@ class Router extends \Bitrix\Crm\Service\Router
      */
     public function getCustomPageCode(string $settingsKey): string
     {
-        $existsPages = Container::getInstance()
-            ->getRouter()
-            ->getCustomSectionPages(Constants::DYNAMIC_TYPE_CUSTOM_SECTION_CODE);
+        $existsPages = $this->getCustomSectionPages(Constants::DYNAMIC_TYPE_CUSTOM_SECTION_CODE);
 
         $pageCode = '';
 
         foreach ($existsPages as $existsPage)
         {
-            if (strpos($existsPage['SETTINGS'], $settingsKey) !== false)
+            if ($existsPage['SETTINGS'] === $this->entityTypeId.'_'.$settingsKey)
             {
                 $pageCode = $existsPage['CODE'];
             }
@@ -201,7 +199,7 @@ class Router extends \Bitrix\Crm\Service\Router
         $existsSection = CustomSectionTable::query()
             ->setFilter([
                 'CODE'      => $sectionCode,
-                'MODULE_ID' => ServiceManager::getModuleId()
+                'MODULE_ID' => 'crm'
             ])
             ->setSelect(['ID', 'TITLE'])
             ->fetch();

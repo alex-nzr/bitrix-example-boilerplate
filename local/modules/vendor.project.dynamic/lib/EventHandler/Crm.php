@@ -14,6 +14,8 @@ namespace Vendor\Project\Dynamic\EventHandler;
 
 use Bitrix\Main\Event;
 use Bitrix\Main\EventResult;
+use ReflectionClass;
+use Vendor\Project\Dynamic\Config\Constants;
 use Vendor\Project\Dynamic\Internals\Control\ServiceManager;
 use Vendor\Project\Dynamic\Service\Container;
 
@@ -30,7 +32,7 @@ class Crm
      */
     public static function changeDetailCardTabs(Event $event): ?EventResult
     {
-        if (Container::getInstance()->getRouter()->isInDynamicTypeSection())
+        if (Container::getInstance()->getRouter()->isDetailPage())
         {
             $tabs = $event->getParameter('tabs');
             foreach ($tabs as $key => $tab)
@@ -41,6 +43,20 @@ class Crm
                     unset($tabs[$key]);
                 }
             }
+
+            $tabs[] = [
+                'id'   => Constants::DYNAMIC_TYPE_CODE.'_new_tab',
+                'name' => 'New tab'
+            ];
+
+            $reflection = new ReflectionClass($event);
+            $property   = $reflection->getProperty('parameters');
+            $property->setAccessible(true);
+
+            $eventParams = $property->getValue($event);
+            $eventParams['tabs'] = $tabs;
+            $property->setValue($event, $eventParams);
+
             return new EventResult(EventResult::SUCCESS, [
                 'tabs' => $tabs,
             ]);

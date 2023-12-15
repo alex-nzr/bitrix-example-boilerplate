@@ -73,7 +73,7 @@ final class Configuration
             ],
             Constants::CUSTOM_PAGE_LIST => [
                 'TITLE'     => 'List page',
-                'COMPONENT' => CustomSectionProvider::DEFAULT_LIST_COMPONENT,
+                'COMPONENT' => CustomSectionProvider::CUSTOM_LIST_COMPONENT,
             ],
         ];
     }
@@ -124,6 +124,15 @@ final class Configuration
     public function getStatusPrefix(int $categoryId): string
     {
         return CCrmStatus::getDynamicEntityStatusPrefix($this->getEntityTypeId(), $categoryId) . ":";
+    }
+
+    /**
+     * @return int
+     * @throws \Exception
+     */
+    public function getDefaultCategoryId(): int
+    {
+        return (int)Container::getInstance()->getCategoryBroker()->getCategoryIdByCode(Constants::DYNAMIC_CATEGORY_DEFAULT_CODE);
     }
 
     private function __clone(){}

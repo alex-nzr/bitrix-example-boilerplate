@@ -14,9 +14,7 @@ namespace Vendor\Project\Dynamic\Service\Integration\Crm\Entity;
 
 use Bitrix\Crm\Attribute\FieldAttributeManager;
 use Bitrix\Crm\Entity\EntityEditorConfigScope;
-use Bitrix\Crm\Item;
 use Bitrix\Crm\Model\ItemCategoryTable;
-use Bitrix\Main\Config\Option;
 use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\Error;
 use Bitrix\Main\Result;
@@ -25,7 +23,6 @@ use Exception;
 use Vendor\Project\Dynamic\Config\Configuration;
 use Vendor\Project\Dynamic\Config\Constants;
 use Vendor\Project\Dynamic\Internals\Contract\IEditorConfig;
-use Vendor\Project\Dynamic\Internals\Control\ServiceManager;
 use Vendor\Project\Dynamic\Internals\EditorConfig;
 use Vendor\Project\Dynamic\Service\EntityEditor\FieldManager;
 
@@ -101,10 +98,11 @@ class EntityEditorConfig extends \Bitrix\Crm\Entity\EntityEditorConfig
                         $data      = $crmConfig->sanitize($data);
                         $crmConfig->set($data);
 
-                        //todo доработать под сохранение обязательных полей для определённых стадий
-                        foreach ($editorConfig->getRequiredFields() as $requiredFieldName)
+                        foreach ($editorConfig->getRequiredFields() as $requiredFieldName => $requiredFieldConfig)
                         {
-                            FieldManager::getInstance($entityTypeId)->saveFieldAsRequired($requiredFieldName, $categoryId);
+                            FieldManager::getInstance($entityTypeId)->saveFieldAsRequired(
+                                $requiredFieldName, $categoryId, $requiredFieldConfig
+                            );
                         }
                     }
                     else

@@ -42,7 +42,7 @@ class vendor_project_dynamic extends CModule
         $arModuleVersion = [];
         include(__DIR__."/version.php");
 
-        $this->MODULE_ID     = GetModuleID(__FILE__);
+        $this->MODULE_ID     = str_replace('_', '.', static::class);
 
         $this->partnerId     = explode('.', $this->MODULE_ID)[0];
         $this->projectId     = explode('.', $this->MODULE_ID)[1];

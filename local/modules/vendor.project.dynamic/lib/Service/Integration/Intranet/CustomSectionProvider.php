@@ -11,8 +11,8 @@
  */
 namespace Vendor\Project\Dynamic\Service\Integration\Intranet;
 
-use Bitrix\Crm\Integration\Intranet\CustomSectionProvider as IntranetCustomSectionProvider;
 use Bitrix\Crm\Integration\IntranetManager;
+use Bitrix\Intranet\CustomSection\Provider;
 use Bitrix\Intranet\CustomSection\Provider\Component;
 use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\Web\Uri;
@@ -25,9 +25,10 @@ use CCrmOwnerType;
  * Class CustomSectionProvider
  * @package Vendor\Project\Dynamic\Service\Integration\Intranet
  */
-class CustomSectionProvider extends IntranetCustomSectionProvider
+class CustomSectionProvider extends Provider
 {
     const DEFAULT_LIST_COMPONENT = 'bitrix:crm.item.list';
+    const CUSTOM_LIST_COMPONENT  = 'bitrix:crm.item.list';
 
     /**
      * @param string $pageSettings
@@ -70,6 +71,7 @@ class CustomSectionProvider extends IntranetCustomSectionProvider
 
         $router = Container::getInstance()->getRouter();
         $componentParameters = [];
+
         foreach ($customSections as $section)
         {
             foreach ($section->getPages() as $page)
@@ -80,7 +82,7 @@ class CustomSectionProvider extends IntranetCustomSectionProvider
                 {
                     $url = IntranetManager::getUrlForCustomSectionPage($section->getCode(), $page->getCode());
                     $componentParameters = [
-                        'root' => ($url ? $url->getPath() : null),
+                        'root' => !is_null($url) ? $url->getPath() : null,
                     ];
 
                     $router->setDefaultComponent($this->getComponentByPageSettings($pageSettings));
@@ -99,16 +101,17 @@ class CustomSectionProvider extends IntranetCustomSectionProvider
 
     /**
      * @param string $pageSettings
-     * @return int|mixed|string|null
+     * @return int|null
+     * @throws \Exception
      */
-    public function getEntityTypeIdByPageSettings(string $pageSettings)
+    public static function getEntityTypeIdByPageSettings(string $pageSettings): ?int
     {
         $customPagesMap = Configuration::getInstance()->getCustomPagesMap();
         $set = explode("_", $pageSettings);
 
         if (array_key_exists($set[1], $customPagesMap))
         {
-            $entityTypeId = $set[0];
+            $entityTypeId = (int)$set[0];
         }
         else
         {
@@ -121,6 +124,7 @@ class CustomSectionProvider extends IntranetCustomSectionProvider
     /**
      * @param string $pageSettings
      * @return string
+     * @throws \Exception
      */
     public function getComponentByPageSettings(string $pageSettings): string
     {
@@ -153,5 +157,38 @@ class CustomSectionProvider extends IntranetCustomSectionProvider
         }
 
         return Container::getInstance()->getUserPermissions($userId)->checkReadPermissions($entityTypeId);
+    }
+
+    /**
+     * @param string $pageSettings
+     * @return string|null
+     */
+    public function getCounterId(string $pageSettings): ?string
+    {
+        return $pageSettings . '_page_counter';
+    }
+
+    /**
+     * @param string $pageSettings
+     * @return int|null
+     * @throws \Exception
+     */
+    public function getCounterValue(string $pageSettings): ?int
+    {
+        $set   = explode("_", $pageSettings);
+        $value = null;
+        if (is_array($set))
+        {
+           switch ($set[1])
+           {
+               case Constants::CUSTOM_PAGE_LIST:
+                   $value = 2;
+                   break;
+               case Constants::CUSTOM_PAGE_EXAMPLE:
+                   $value = 4;
+                   break;
+           }
+        }
+        return $value;
     }
 }

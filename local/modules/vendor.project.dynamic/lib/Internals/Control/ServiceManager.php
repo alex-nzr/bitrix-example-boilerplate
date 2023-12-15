@@ -109,6 +109,17 @@ class ServiceManager
      */
     private function includeCustomServices(): void
     {
+        //При использовании нескольких смарт-процессов в одном разделе нужно заменить проверку раздела
+        //на проверку страницы списка, детальной страницы и прочих кастомных страниц относящихся к данному смарт-процессу
+        //Если у каждого смарт процесса свои сервисы и провайдер,
+        //то нужно в Configuration::getCustomPagesMap() добавить все страницы относящиеся к данной секции
+        //(исключая страницу списка, она у каждого своя).
+        //Эти доп.страницы необходимо обернуть в проверку !ServiceManager::isModuleInstallingNow(),
+        //иначе страницы задублируются для каждого смарт процесса при установке
+        //Иначе страницы относящиеся к одному смарту не будут отображаться в меню при переходе на списочную страницу другого.
+        //Если у других смартов в разделе нет своих сервисов и провайдера, то подключение текущего провайдера должно быть
+        //на каждой странице раздела, то есть по условию isInDynamicTypeSection(), а подключение сервисов должно быть
+        //только для текущего смарта, то есть по условию на конкретно его страницы (isDetailPage(), isListPage() и т.п.)
         if (Container::getInstance()->getRouter()->isInDynamicTypeSection())
         {
             $this->addCustomCrmServices();
@@ -201,10 +212,8 @@ class ServiceManager
         {
             $request = Context::getCurrent()->getRequest();
 
-            //break script while installing or uninstalling of module
-            if ($request->get('id') === static::getModuleId()
-                && ($request->get('install') === 'Y' || $request->get('uninstall') === 'Y')
-            ){
+            //break script while installing or uninstalling this module
+            if (static::isModuleInstallingNow()){
                 return;
             }
 
@@ -287,6 +296,16 @@ class ServiceManager
         }
 
         return false;
+    }
+
+    /**
+     * @return bool
+     */
+    public static function isModuleInstallingNow(): bool
+    {
+        $request = Context::getCurrent()->getRequest();
+        return $request->get('id') === static::getModuleId()
+            && ($request->get('install') === 'Y' || $request->get('uninstall') === 'Y');
     }
 
     private function __clone(){}

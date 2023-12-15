@@ -11,6 +11,8 @@
  */
 namespace Vendor\Project\Dynamic\Internals\EditorConfig;
 
+use Bitrix\Crm\Attribute\FieldAttributePhaseGroupType;
+use Vendor\Project\Dynamic\Config\Configuration;
 use Vendor\Project\Dynamic\Internals\Contract\IEditorConfig;
 use Vendor\Project\Dynamic\Service\Broker;
 use Vendor\Project\Dynamic\Service\Container;
@@ -127,5 +129,69 @@ abstract class BaseConfig implements IEditorConfig
         }
 
         return $fieldCodes;
+    }
+
+    /**
+     * TODO доработать метод для нескольких стадий, которые идут подряд или не подряд
+     * TODO доработать метод для провальных стадий (см. образец конфига в FieldManager::saveFieldAsRequired)
+     * @return array[]
+     * @throws \Exception
+     */
+    protected function getRequiredFieldConfigForStage(int $categoryId, string $stageCode): array
+    {
+        $stagePrefix = Configuration::getInstance()->getStatusPrefix($categoryId);
+        return [
+            [
+                'phaseGroupTypeId' => FieldAttributePhaseGroupType::PIPELINE,
+                'items' => [
+                    [
+                        'startPhaseId' => $stagePrefix . $stageCode,
+                        'finishPhaseId' => $stagePrefix . $stageCode,
+                    ]
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * Make field required for all stages in category scope
+     * @return array[]
+     */
+    protected function getConfigForAlwaysRequiredField(): array
+    {
+        return [
+            [
+                'phaseGroupTypeId' => FieldAttributePhaseGroupType::ALL
+            ],
+        ];
+    }
+
+    /**
+     * @param string $schemeSectionName
+     * @return array
+     * @throws \Exception
+     */
+    protected function getFieldsBySectionName(string $schemeSectionName): array
+    {
+        $result = [];
+
+        foreach ($this->getConfigScheme() as $section)
+        {
+            if (is_array($section)
+                && ($section['type'] === 'section')
+                && ($section['name'] === $schemeSectionName)
+                && is_array($section['elements'])
+            ){
+                foreach ($section['elements'] as $element)
+                {
+                    if (is_array($element) && !empty($element['name']))
+                    {
+                        $result[] = $element['name'];
+                    }
+                }
+            }
+        }
+
+        return $result;
     }
 }

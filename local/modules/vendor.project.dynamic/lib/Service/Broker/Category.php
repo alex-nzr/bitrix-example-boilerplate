@@ -107,11 +107,38 @@ class Category extends Broker
      */
     protected function normalizeCategory(CategoryEntity $category): array
     {
-        $data = $category->getData();
-        if (empty($data['CODE']) && $category->getIsDefault())
+        $data = [
+            'ID'             => $category->getId(),
+            'CODE'           => $category->getCode(),
+            'NAME'           => $category->getName(),
+            'SORT'           => $category->getSort(),
+            'ENTITY_TYPE_ID' => $category->getEntityTypeId(),
+            'IS_DEFAULT'     => $category->getIsDefault(),
+        ];
+        if (empty($data['CODE']))
         {
-            $data['CODE'] = Constants::DYNAMIC_CATEGORY_DEFAULT_CODE;
+            if ($category->getIsDefault())
+            {
+                $data['CODE'] = Constants::DYNAMIC_CATEGORY_DEFAULT_CODE;
+            }
         }
         return $data;
+    }
+
+    /**
+     * @param string $name
+     * @return int|null
+     */
+    public function getCategoryIdByName(string $name): ?int
+    {
+        $categoryId = null;
+        foreach ($this->categories as $id => $category) {
+            if ($category['NAME'] === $name)
+            {
+                $categoryId = (int)$id;
+                break;
+            }
+        }
+        return $categoryId;
     }
 }

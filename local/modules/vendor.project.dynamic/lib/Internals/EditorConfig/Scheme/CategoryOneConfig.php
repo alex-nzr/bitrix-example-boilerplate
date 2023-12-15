@@ -12,6 +12,8 @@
 namespace Vendor\Project\Dynamic\Internals\EditorConfig\Scheme;
 
 use Bitrix\Crm\Item;
+use Vendor\Project\Dynamic\Config\Configuration;
+use Vendor\Project\Dynamic\Config\Constants;
 use Vendor\Project\Dynamic\Internals\EditorConfig\BaseConfig;
 use Vendor\Project\Dynamic\Item\Dynamic;
 use Vendor\Project\Dynamic\Service\Container;
@@ -102,8 +104,14 @@ class CategoryOneConfig extends BaseConfig
     public function getRequiredFields(): array
     {
         return [
-            Item::FIELD_NAME_TITLE,
-            $this->ufBroker->getUfNameByCode(Dynamic::UF_CODE_EXAMPLE_STRING)
+            Item::FIELD_NAME_TITLE => $this->getRequiredFieldConfigForStage(
+                Configuration::getInstance()->getDefaultCategoryId(),
+                Constants::DYNAMIC_STAGE_DEFAULT_NEW
+            ),
+            $this->ufBroker->getUfNameByCode(Dynamic::UF_CODE_EXAMPLE_STRING) => $this->getRequiredFieldConfigForStage(
+                Configuration::getInstance()->getDefaultCategoryId(),
+                Constants::DYNAMIC_STAGE_DEFAULT_FAIL
+            )
         ];
     }
 

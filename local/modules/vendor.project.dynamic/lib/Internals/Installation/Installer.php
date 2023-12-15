@@ -65,9 +65,7 @@ class Installer
                 $categoryResult->addErrors($categoryResult->getErrors());
             }
 
-            $cardConfigResult = EntityEditorConfig::setTypeCardConfig(
-                $entityTypeId, (int)$typeResult->getPrimary()
-            );
+            $cardConfigResult = EntityEditorConfig::setTypeCardConfig($entityTypeId);
             if (!$cardConfigResult->isSuccess())
             {
                 $finalRes->addErrors($cardConfigResult->getErrors());

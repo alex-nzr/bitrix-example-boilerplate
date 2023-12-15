@@ -33,6 +33,10 @@ class FieldManager
     private static array $instances = [];
     private int $entityTypeId;
 
+    /**
+     * FieldManager constructor
+     * @param int $entityTypeId
+     */
     private function __construct(int $entityTypeId)
     {
         $this->entityTypeId = $entityTypeId;
@@ -54,39 +58,56 @@ class FieldManager
     /**
      * @param string $requiredFieldName
      * @param int $categoryId
+     * @param array $fieldConfig
      * @return void
      * @throws \Exception
      */
-    public function saveFieldAsRequired(string $requiredFieldName, int $categoryId): void
+    public function saveFieldAsRequired(string $requiredFieldName, int $categoryId, array $fieldConfig): void
     {
         $entityScope = 'category_' . $categoryId;
-        $exists = FieldAttributeTable::query()
-            ->setSelect(['ID'])
-            ->setFilter([
-                'ENTITY_TYPE_ID' => $this->entityTypeId,
-                'ENTITY_SCOPE'   => $entityScope,
-                'TYPE_ID'        => FieldAttributeType::REQUIRED,
-                'FIELD_NAME'     => $requiredFieldName,
-            ])
-            ->fetch();
 
-        if (is_array($exists))
-        {
-            $delRes = FieldAttributeTable::delete($exists['ID']);
-            if (!$delRes->isSuccess())
-            {
-                throw new Exception(implode('; ', $delRes->getErrorMessages()));
-            }
-        }
-
+        //FieldAttributePhaseGroupType::ALL - для всех стадий и воронок
+        //FieldAttributePhaseGroupType::PIPELINE - для успешной стадии и группы стадий "В работе"
+        //FieldAttributePhaseGroupType::JUNK - для негативных стадий
+        //Если поле обязательное для разных групп стадий, то создаётся несколько вложенных массивов
+        // в массиве 'groups', каждый со своим 'phaseGroupTypeId'
+        // если стадии идут подряд, то указывается только первая и последняя
+        //если не подряд, то создаётся несколько элементов в 'items'
+        //Для негативных стадий на каждую создаётся отдельный элемент в 'items', независимо от порядка следования
+        /*[
+            'typeId' => FieldAttributeType::REQUIRED,
+            'groups' => [
+                [
+                    'phaseGroupTypeId' => FieldAttributePhaseGroupType::ALL
+                ],
+                [
+                    'phaseGroupTypeId' => FieldAttributePhaseGroupType::PIPELINE,
+                    'items' => [
+                        [
+                            'startPhaseId' => 'DT189_8:NEW',
+                            'finishPhaseId' => 'DT189_8:PROCESS',
+                        ],
+                        [
+                            'startPhaseId' => 'DT189_8:SUCCESS',
+                            'finishPhaseId' => 'DT189_8:SUCCESS',
+                        ]
+                    ]
+                ],
+                [
+                    'phaseGroupTypeId' => FieldAttributePhaseGroupType::JUNK,
+                    'items' => [
+                        [
+                            'startPhaseId' => 'DT189_8:FAIL',
+                            'finishPhaseId' => 'DT189_8:FAIL',
+                        ]
+                    ]
+                ]
+            ]
+        ]*/
         FieldAttributeManager::saveEntityConfiguration(
             [
                 'typeId' => FieldAttributeType::REQUIRED,
-                'groups' => [
-                    [
-                        'phaseGroupTypeId' => FieldAttributePhaseGroupType::ALL
-                    ]
-                ]
+                'groups' => $fieldConfig
             ],
             $requiredFieldName,
             $this->entityTypeId,
